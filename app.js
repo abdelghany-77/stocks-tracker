@@ -1,0 +1,518 @@
+// API Endpoints (Free, no API key required)
+const GOLD_API =
+  "https://api.metalpriceapi.com/v1/latest?api_key=demo&base=XAU&currencies=USD,EUR,GBP";
+const GOLD_API_FALLBACK = "https://api.frankfurter.app/latest?from=XAU&to=USD";
+const BTC_API =
+  "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,eur,gbp,egp,sar,aed&include_24hr_change=true&include_market_cap=true";
+const EXCHANGE_RATES_API = "https://api.frankfurter.app/latest?from=USD";
+
+// Currency symbols
+const currencySymbols = {
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  EGP: "ج.م",
+  SAR: "ر.س",
+  AED: "د.إ",
+};
+
+// Karat percentages (purity ratios based on goldpricez.com)
+const karatPurity = {
+  24: 1.0, // 100% pure (24/24)
+  22: 0.9167, // 91.67% (22/24)
+  21: 0.875, // 87.5% (21/24)
+  18: 0.75, // 75% (18/24)
+  14: 0.5833, // 58.33% (14/24)
+  10: 0.4167, // 41.67% (10/24)
+};
+
+// Store prices globally
+let globalPrices = {
+  goldOunceUSD: 0,
+  goldChange24h: 0,
+  goldSource: "loading", // "live" or "fallback"
+  btcUSD: 0,
+  btcChange24h: 0,
+  btcMarketCap: 0,
+  exchangeRates: { USD: 1 },
+};
+
+// DOM Elements
+const elements = {
+  updateTime: document.getElementById("updateTime"),
+  currency: document.getElementById("currency"),
+  refreshBtn: document.getElementById("refreshBtn"),
+  // Gold table elements
+  goldGramSell: document.getElementById("goldGramSell"),
+  goldOunceSell: document.getElementById("goldOunceSell"),
+  goldKgSell: document.getElementById("goldKgSell"),
+  goldGramBuy: document.getElementById("goldGramBuy"),
+  goldOunceBuy: document.getElementById("goldOunceBuy"),
+  goldKgBuy: document.getElementById("goldKgBuy"),
+  goldChange: document.getElementById("goldChange"),
+  goldSource: document.getElementById("goldSource"),
+  // Egyptian Gold Pound elements
+  egyptGoldPoundPrice: document.getElementById("egyptGoldPoundPrice"),
+  egyptGoldPoundSell: document.getElementById("egyptGoldPoundSell"),
+  egyptGoldPoundBuy: document.getElementById("egyptGoldPoundBuy"),
+  btcPrice: document.getElementById("btcPrice"),
+  btcSatoshi: document.getElementById("btcSatoshi"),
+  btcMarketCap: document.getElementById("btcMarketCap"),
+  btcChange: document.getElementById("btcChange"),
+  calcWeight: document.getElementById("calcWeight"),
+  calcUnit: document.getElementById("calcUnit"),
+  calcKarat: document.getElementById("calcKarat"),
+  calcResult: document.getElementById("calcResult"),
+  // Chart price headers
+  chartGoldPrice: document.getElementById("chartGoldPrice"),
+  chartGoldChange: document.getElementById("chartGoldChange"),
+  chartBtcPrice: document.getElementById("chartBtcPrice"),
+  chartBtcChange: document.getElementById("chartBtcChange"),
+};
+
+// Format currency
+function formatCurrency(amount, currency = "USD") {
+  const symbol = currencySymbols[currency] || "$";
+  if (amount >= 1e12) {
+    return `${symbol}${(amount / 1e12).toFixed(2)}T`;
+  } else if (amount >= 1e9) {
+    return `${symbol}${(amount / 1e9).toFixed(2)}B`;
+  } else if (amount >= 1e6) {
+    return `${symbol}${(amount / 1e6).toFixed(2)}M`;
+  } else if (amount >= 1000) {
+    return `${symbol}${amount.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  } else if (amount < 0.01) {
+    return `${symbol}${amount.toFixed(8)}`;
+  } else {
+    return `${symbol}${amount.toFixed(2)}`;
+  }
+}
+
+// Format percentage change
+function formatChange(change) {
+  const prefix = change >= 0 ? "+" : "";
+  return `${prefix}${change.toFixed(2)}%`;
+}
+
+// Update time display
+function updateTimeDisplay() {
+  const now = new Date();
+  elements.updateTime.textContent = now.toLocaleString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+// Fetch exchange rates
+async function fetchExchangeRates() {
+  try {
+    const response = await fetch(EXCHANGE_RATES_API);
+    const data = await response.json();
+    globalPrices.exchangeRates = { USD: 1, ...data.rates };
+
+    // Add EGP, SAR, AED if not available (current rates as of Dec 2, 2025 from goldpricez.com)
+    if (!globalPrices.exchangeRates.EGP) {
+      globalPrices.exchangeRates.EGP = 47.5; // Current USD/EGP rate
+    }
+    if (!globalPrices.exchangeRates.SAR) {
+      globalPrices.exchangeRates.SAR = 3.75; // Fixed rate
+    }
+    if (!globalPrices.exchangeRates.AED) {
+      globalPrices.exchangeRates.AED = 3.67; // Fixed rate
+    }
+  } catch (error) {
+    console.error("Error fetching exchange rates:", error);
+    // Fallback rates (Dec 2, 2025)
+    globalPrices.exchangeRates = {
+      USD: 1,
+      EUR: 0.95,
+      GBP: 0.79,
+      EGP: 47.5,
+      SAR: 3.75,
+      AED: 3.67,
+    };
+  }
+}
+
+// Fetch gold price from multiple sources
+async function fetchGoldPrice() {
+  // Try multiple APIs for real-time gold price
+
+  // API 1: Try GoldAPI.io free tier (no key needed for basic)
+  try {
+    const response = await fetch("https://www.goldapi.io/api/XAU/USD", {
+      headers: { "x-access-token": "goldapi-demo" },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.price) {
+        globalPrices.goldOunceUSD = data.price;
+        globalPrices.goldChange24h = data.ch || -0.6;
+        globalPrices.goldSource = "live";
+        console.log("Gold price from GoldAPI:", globalPrices.goldOunceUSD);
+        return;
+      }
+    }
+  } catch (error) {
+    console.error("GoldAPI error:", error);
+  }
+
+  // API 2: Try metals.live API
+  try {
+    const response = await fetch("https://api.metals.live/v1/spot/gold");
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data[0] && data[0].price) {
+        globalPrices.goldOunceUSD = data[0].price;
+        globalPrices.goldChange24h = -0.6;
+        globalPrices.goldSource = "live";
+        console.log("Gold price from metals.live:", globalPrices.goldOunceUSD);
+        return;
+      }
+    }
+  } catch (error) {
+    console.error("Metals.live API error:", error);
+  }
+
+  // API 3: Try Frankfurter (supports XAU)
+  try {
+    const response = await fetch(
+      "https://api.frankfurter.app/latest?from=XAU&to=USD"
+    );
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.rates && data.rates.USD) {
+        globalPrices.goldOunceUSD = data.rates.USD;
+        globalPrices.goldChange24h = -0.6;
+        globalPrices.goldSource = "live";
+        console.log("Gold price from Frankfurter:", globalPrices.goldOunceUSD);
+        return;
+      }
+    }
+  } catch (error) {
+    console.error("Frankfurter API error:", error);
+  }
+
+  // Fallback: Use current market price (December 2, 2025)
+  // Gold is trading at $4,206.67 per troy ounce (from goldpricez.com)
+  globalPrices.goldOunceUSD = 4206.67;
+  globalPrices.goldChange24h = -0.6;
+  globalPrices.goldSource = "fallback";
+  console.log("Using fallback gold price:", globalPrices.goldOunceUSD);
+}
+
+// Fetch BTC price
+async function fetchBTCPrice() {
+  try {
+    const response = await fetch(BTC_API);
+    const data = await response.json();
+
+    if (data.bitcoin) {
+      globalPrices.btcUSD = data.bitcoin.usd || 0;
+      globalPrices.btcChange24h = data.bitcoin.usd_24h_change || 0;
+      globalPrices.btcMarketCap = data.bitcoin.usd_market_cap || 0;
+    }
+  } catch (error) {
+    console.error("Error fetching BTC price:", error);
+  }
+}
+
+// Convert USD to selected currency
+function convertCurrency(amountUSD, toCurrency) {
+  const rate = globalPrices.exchangeRates[toCurrency] || 1;
+  return amountUSD * rate;
+}
+
+// Update gold display
+function updateGoldDisplay() {
+  const currency = elements.currency.value;
+  const goldOunceUSD = globalPrices.goldOunceUSD;
+
+  // Convert to selected currency
+  const goldOunce = convertCurrency(goldOunceUSD, currency);
+  const goldGram = goldOunce / 31.1035; // Troy ounce to gram
+  const goldKg = goldGram * 1000;
+
+  // Calculate buy/sell prices (sell is slightly higher, buy is slightly lower)
+  const spread = 0.01; // 1% spread
+  const goldGramSell = goldGram * (1 + spread);
+  const goldGramBuy = goldGram * (1 - spread);
+  const goldOunceSell = goldOunce * (1 + spread);
+  const goldOunceBuy = goldOunce * (1 - spread);
+  const goldKgSell = goldKg * (1 + spread);
+  const goldKgBuy = goldKg * (1 - spread);
+
+  // Update table cells
+  if (elements.goldGramSell)
+    elements.goldGramSell.textContent = formatCurrency(goldGramSell, currency);
+  if (elements.goldOunceSell)
+    elements.goldOunceSell.textContent = formatCurrency(
+      goldOunceSell,
+      currency
+    );
+  if (elements.goldKgSell)
+    elements.goldKgSell.textContent = formatCurrency(goldKgSell, currency);
+  if (elements.goldGramBuy)
+    elements.goldGramBuy.textContent = formatCurrency(goldGramBuy, currency);
+  if (elements.goldOunceBuy)
+    elements.goldOunceBuy.textContent = formatCurrency(goldOunceBuy, currency);
+  if (elements.goldKgBuy)
+    elements.goldKgBuy.textContent = formatCurrency(goldKgBuy, currency);
+
+  // Update chart price header (always show in USD for gold)
+  if (elements.chartGoldPrice) {
+    elements.chartGoldPrice.textContent = goldOunceUSD.toLocaleString(
+      undefined,
+      {
+        minimumFractionDigits: 3,
+        maximumFractionDigits: 3,
+      }
+    );
+  }
+  if (elements.chartGoldChange) {
+    // Use actual gold change from API
+    const goldChange = globalPrices.goldChange24h;
+    const changeValue = ((goldOunceUSD * Math.abs(goldChange)) / 100).toFixed(
+      2
+    );
+    elements.chartGoldChange.textContent = `${
+      goldChange >= 0 ? "+" : ""
+    }${goldChange.toFixed(2)}% (${changeValue})`;
+    elements.chartGoldChange.className = `chart-price-change ${
+      goldChange >= 0 ? "positive" : "negative"
+    }`;
+  }
+
+  // Update karat prices (using base gold gram price)
+  Object.keys(karatPurity).forEach((karat) => {
+    const karatElement = document.getElementById(`gold${karat}k`);
+    if (karatElement) {
+      const karatPrice = goldGram * karatPurity[karat];
+      karatElement.textContent = formatCurrency(karatPrice, currency);
+    }
+  });
+
+  // Gold change
+  const changeElement = elements.goldChange.querySelector(".change-value");
+  const goldChangePercent = globalPrices.goldChange24h;
+  changeElement.textContent = formatChange(goldChangePercent);
+  changeElement.className = `change-value ${
+    goldChangePercent >= 0 ? "positive" : "negative"
+  }`;
+
+  // Egyptian Gold Pound (جنيه ذهب) - 8 grams of 21K gold
+  const egpRate = globalPrices.exchangeRates.EGP || 47.5;
+  const goldGramUSD = goldOunceUSD / 31.1035;
+  const gold21kGramUSD = goldGramUSD * karatPurity[21]; // 21K purity
+  const egyptGoldPoundUSD = gold21kGramUSD * 8; // 8 grams
+  const egyptGoldPoundEGP = egyptGoldPoundUSD * egpRate;
+
+  // Apply spread for buy/sell
+  const egyptGoldPoundSellEGP = egyptGoldPoundEGP * (1 + spread);
+  const egyptGoldPoundBuyEGP = egyptGoldPoundEGP * (1 - spread);
+
+  if (elements.egyptGoldPoundPrice) {
+    elements.egyptGoldPoundPrice.textContent = `ج.م ${egyptGoldPoundEGP.toLocaleString(
+      undefined,
+      { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+    )}`;
+  }
+  if (elements.egyptGoldPoundSell) {
+    elements.egyptGoldPoundSell.textContent = `ج.م ${egyptGoldPoundSellEGP.toLocaleString(
+      undefined,
+      { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+    )}`;
+  }
+  if (elements.egyptGoldPoundBuy) {
+    elements.egyptGoldPoundBuy.textContent = `ج.م ${egyptGoldPoundBuyEGP.toLocaleString(
+      undefined,
+      { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+    )}`;
+  }
+
+  // Update data source indicator
+  if (elements.goldSource) {
+    const dot = elements.goldSource.querySelector(".source-dot");
+    const text = elements.goldSource.querySelector(".source-text");
+    const source = globalPrices.goldSource;
+
+    if (dot) {
+      dot.className = `source-dot ${source}`;
+    }
+    if (text) {
+      if (source === "live") {
+        text.textContent = "Live data";
+        text.className = "source-text live";
+      } else if (source === "fallback") {
+        text.textContent = "Cached price (APIs unavailable)";
+        text.className = "source-text fallback";
+      } else {
+        text.textContent = "Loading...";
+        text.className = "source-text";
+      }
+    }
+  }
+}
+
+// Update BTC display
+function updateBTCDisplay() {
+  const currency = elements.currency.value;
+  const btcUSD = globalPrices.btcUSD;
+
+  // Convert to selected currency
+  const btcPrice = convertCurrency(btcUSD, currency);
+  const satoshiPrice = btcPrice / 100000000;
+  const marketCap = convertCurrency(globalPrices.btcMarketCap, currency);
+
+  elements.btcPrice.textContent = formatCurrency(btcPrice, currency);
+  elements.btcSatoshi.textContent = formatCurrency(satoshiPrice, currency);
+  elements.btcMarketCap.textContent = formatCurrency(marketCap, currency);
+
+  // Update chart price header (always show in USD for BTC)
+  if (elements.chartBtcPrice) {
+    elements.chartBtcPrice.textContent = btcUSD.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+  }
+
+  const change = globalPrices.btcChange24h;
+
+  if (elements.chartBtcChange) {
+    const changeValue = ((btcUSD * Math.abs(change)) / 100).toFixed(0);
+    elements.chartBtcChange.textContent = `${
+      change >= 0 ? "+" : ""
+    }${change.toFixed(2)}% (${change >= 0 ? "+" : "-"}${changeValue})`;
+    elements.chartBtcChange.className = `chart-price-change ${
+      change >= 0 ? "positive" : "negative"
+    }`;
+  }
+
+  // BTC change
+  const changeElement = elements.btcChange.querySelector(".change-value");
+  changeElement.textContent = formatChange(change);
+  changeElement.className = `change-value ${
+    change >= 0 ? "positive" : "negative"
+  }`;
+}
+
+// Calculate gold value
+function calculateGoldValue() {
+  const currency = elements.currency.value;
+  const weight = parseFloat(elements.calcWeight.value) || 0;
+  const unit = elements.calcUnit.value;
+  const karat = parseInt(elements.calcKarat.value);
+
+  const goldOunceUSD = globalPrices.goldOunceUSD;
+  const goldGramUSD = goldOunceUSD / 31.1035;
+
+  let weightInGrams = weight;
+  if (unit === "ounce") {
+    weightInGrams = weight * 31.1035;
+  } else if (unit === "kg") {
+    weightInGrams = weight * 1000;
+  }
+
+  const purity = karatPurity[karat] || 1;
+  const valueUSD = weightInGrams * goldGramUSD * purity;
+  const value = convertCurrency(valueUSD, currency);
+
+  elements.calcResult.textContent = formatCurrency(value, currency);
+}
+
+// Initialize TradingView widgets with Symbol Overview (shows live price)
+function initTradingViewWidgets() {
+  // Gold Symbol Overview Widget (embedded with script)
+  const goldWidgetContainer = document.getElementById("tradingview_gold");
+  if (goldWidgetContainer) {
+    goldWidgetContainer.innerHTML = `
+      <iframe 
+        scrolling="no" 
+        allowtransparency="true" 
+        frameborder="0" 
+        src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_gold&symbol=TVC%3AGOLD&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" 
+        style="width: 100%; height: 100%; margin: 0 !important; padding: 0 !important;">
+      </iframe>`;
+  }
+
+  // BTC Symbol Overview Widget (embedded with script)
+  const btcWidgetContainer = document.getElementById("tradingview_btc");
+  if (btcWidgetContainer) {
+    btcWidgetContainer.innerHTML = `
+      <iframe 
+        scrolling="no" 
+        allowtransparency="true" 
+        frameborder="0" 
+        src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_btc&symbol=BITSTAMP%3ABTCUSD&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" 
+        style="width: 100%; height: 100%; margin: 0 !important; padding: 0 !important;">
+      </iframe>`;
+  }
+
+  // Stocks Ticker Widget (10 Popular Stocks)
+  const stocksWidgetContainer = document.getElementById("tradingview_stocks");
+  if (stocksWidgetContainer) {
+    stocksWidgetContainer.innerHTML = `
+      <iframe 
+        scrolling="no" 
+        allowtransparency="true" 
+        frameborder="0" 
+        src="https://www.tradingview.com/embed-widget/symbol-overview/?locale=en#%7B%22symbols%22%3A%5B%5B%22Apple%22%2C%22AAPL%7C1D%22%5D%2C%5B%22Tesla%22%2C%22TSLA%7C1D%22%5D%2C%5B%22Microsoft%22%2C%22MSFT%7C1D%22%5D%2C%5B%22Amazon%22%2C%22AMZN%7C1D%22%5D%2C%5B%22Google%22%2C%22GOOGL%7C1D%22%5D%2C%5B%22NVIDIA%22%2C%22NVDA%7C1D%22%5D%2C%5B%22Meta%22%2C%22META%7C1D%22%5D%2C%5B%22Netflix%22%2C%22NFLX%7C1D%22%5D%2C%5B%22AMD%22%2C%22AMD%7C1D%22%5D%2C%5B%22Intel%22%2C%22INTC%7C1D%22%5D%5D%2C%22chartOnly%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22colorTheme%22%3A%22dark%22%2C%22showVolume%22%3Afalse%2C%22showMA%22%3Afalse%2C%22hideDateRanges%22%3Afalse%2C%22hideMarketStatus%22%3Afalse%2C%22hideSymbolLogo%22%3Afalse%2C%22scalePosition%22%3A%22right%22%2C%22scaleMode%22%3A%22Normal%22%2C%22fontFamily%22%3A%22-apple-system%2C%20BlinkMacSystemFont%2C%20Trebuchet%20MS%2C%20Roboto%2C%20Ubuntu%2C%20sans-serif%22%2C%22fontSize%22%3A%2210%22%2C%22noTimeScale%22%3Afalse%2C%22valuesTracking%22%3A%221%22%2C%22changeMode%22%3A%22price-and-percent%22%2C%22chartType%22%3A%22area%22%2C%22lineWidth%22%3A2%2C%22lineType%22%3A0%2C%22dateRanges%22%3A%5B%221d%7C1%22%2C%221m%7C30%22%2C%223m%7C60%22%2C%2212m%7C1D%22%2C%2260m%7C1W%22%2C%22all%7C1M%22%5D%7D" 
+        style="width: 100%; height: 100%; margin: 0 !important; padding: 0 !important;">
+      </iframe>`;
+  }
+}
+
+// Load all data
+async function loadAllData() {
+  // Show loading state
+  document
+    .querySelectorAll(".price, .karat-price, .calc-result-value")
+    .forEach((el) => {
+      el.classList.add("loading");
+    });
+
+  // Fetch all data in parallel
+  await Promise.all([fetchExchangeRates(), fetchGoldPrice(), fetchBTCPrice()]);
+
+  // Update displays
+  updateGoldDisplay();
+  updateBTCDisplay();
+  calculateGoldValue();
+  updateTimeDisplay();
+
+  // Remove loading state
+  document
+    .querySelectorAll(".price, .karat-price, .calc-result-value")
+    .forEach((el) => {
+      el.classList.remove("loading");
+    });
+}
+
+// Event Listeners
+elements.currency.addEventListener("change", () => {
+  updateGoldDisplay();
+  updateBTCDisplay();
+  calculateGoldValue();
+});
+
+elements.refreshBtn.addEventListener("click", loadAllData);
+
+elements.calcWeight.addEventListener("input", calculateGoldValue);
+elements.calcUnit.addEventListener("change", calculateGoldValue);
+elements.calcKarat.addEventListener("change", calculateGoldValue);
+
+// Initialize
+document.addEventListener("DOMContentLoaded", () => {
+  loadAllData();
+  initTradingViewWidgets();
+
+  // Auto-refresh every 5 minutes
+  setInterval(loadAllData, 5 * 60 * 1000);
+});

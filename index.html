@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gold & BTC Price Tracker</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <div class="logo">
+          <span class="logo-icon">💰</span>
+          <h1>Gold & BTC Tracker</h1>
+        </div>
+        <div class="last-update">
+          <span>Last Update:</span>
+          <span id="updateTime">Loading...</span>
+        </div>
+      </header>
+
+      <!-- Currency Selector -->
+      <div class="currency-selector">
+        <label for="currency">Display Currency:</label>
+        <select id="currency">
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="EGP">EGP (ج.م)</option>
+          <option value="SAR">SAR (ر.س)</option>
+          <option value="AED">AED (د.إ)</option>
+        </select>
+        <button id="refreshBtn" class="refresh-btn">🔄 Refresh</button>
+      </div>
+
+      <!-- Price Cards -->
+      <section class="price-cards">
+        <!-- Gold Card -->
+        <div class="card gold-card">
+          <div class="card-header">
+            <div class="card-icon gold-icon">🥇</div>
+            <h2>Gold Price</h2>
+          </div>
+          <div class="card-body">
+            <table class="gold-price-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Per Gram</th>
+                  <th>Per Ounce</th>
+                  <th>Per Kg</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="sell-row">
+                  <td class="row-label">Sell</td>
+                  <td id="goldGramSell">--</td>
+                  <td id="goldOunceSell">--</td>
+                  <td id="goldKgSell">--</td>
+                </tr>
+                <tr class="buy-row">
+                  <td class="row-label">Buy</td>
+                  <td id="goldGramBuy">--</td>
+                  <td id="goldOunceBuy">--</td>
+                  <td id="goldKgBuy">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer">
+            <div class="change" id="goldChange">
+              <span class="change-label">24h Change:</span>
+              <span class="change-value">--</span>
+            </div>
+            <div class="data-source" id="goldSource">
+              <span class="source-dot"></span>
+              <span class="source-text">Loading...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bitcoin Card -->
+        <div class="card btc-card">
+          <div class="card-header">
+            <div class="card-icon btc-icon">₿</div>
+            <h2>Bitcoin Price</h2>
+          </div>
+          <div class="card-body">
+            <div class="price-row">
+              <span class="label">Per BTC</span>
+              <span class="price" id="btcPrice">--</span>
+            </div>
+            <div class="price-row">
+              <span class="label">Per Satoshi</span>
+              <span class="price" id="btcSatoshi">--</span>
+            </div>
+            <div class="price-row">
+              <span class="label">Market Cap</span>
+              <span class="price" id="btcMarketCap">--</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="change" id="btcChange">
+              <span class="change-label">24h Change:</span>
+              <span class="change-value">--</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gold Karats Section -->
+      <section class="karats-section">
+        <h2 class="section-title">Gold Prices by Karat</h2>
+        <div class="karats-grid">
+          <div class="karat-card">
+            <div class="karat-header">24K</div>
+            <div class="karat-purity">99.9% Pure</div>
+            <div class="karat-price" id="gold24k">--</div>
+            <div class="karat-unit">per gram</div>
+          </div>
+          <div class="karat-card">
+            <div class="karat-header">22K</div>
+            <div class="karat-purity">91.6% Pure</div>
+            <div class="karat-price" id="gold22k">--</div>
+            <div class="karat-unit">per gram</div>
+          </div>
+          <div class="karat-card">
+            <div class="karat-header">21K</div>
+            <div class="karat-purity">87.5% Pure</div>
+            <div class="karat-price" id="gold21k">--</div>
+            <div class="karat-unit">per gram</div>
+          </div>
+          <div class="karat-card">
+            <div class="karat-header">18K</div>
+            <div class="karat-purity">75% Pure</div>
+            <div class="karat-price" id="gold18k">--</div>
+            <div class="karat-unit">per gram</div>
+          </div>
+          <div class="karat-card">
+            <div class="karat-header">14K</div>
+            <div class="karat-purity">58.3% Pure</div>
+            <div class="karat-price" id="gold14k">--</div>
+            <div class="karat-unit">per gram</div>
+          </div>
+          <div class="karat-card">
+            <div class="karat-header">10K</div>
+            <div class="karat-purity">41.7% Pure</div>
+            <div class="karat-price" id="gold10k">--</div>
+            <div class="karat-unit">per gram</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Egyptian Gold Pound Section -->
+      <section class="egypt-gold-section">
+        <h2 class="section-title">🇪🇬 Egyptian Gold Pound (جنيه ذهب)</h2>
+        <div class="egypt-gold-card">
+          <div class="egypt-gold-info">
+            <p class="egypt-gold-description">
+              The Egyptian Gold Pound is 8 grams of 21K gold
+            </p>
+          </div>
+          <div class="egypt-gold-prices">
+            <div class="egypt-price-item">
+              <span class="egypt-price-label">Current Price</span>
+              <span class="egypt-price-value" id="egyptGoldPoundPrice">--</span>
+            </div>
+            <div class="egypt-price-item sell">
+              <span class="egypt-price-label">Sell Price</span>
+              <span class="egypt-price-value" id="egyptGoldPoundSell">--</span>
+            </div>
+            <div class="egypt-price-item buy">
+              <span class="egypt-price-label">Buy Price</span>
+              <span class="egypt-price-value" id="egyptGoldPoundBuy">--</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Calculator Section -->
+      <section class="calculator-section">
+        <h2 class="section-title">Gold Calculator</h2>
+        <div class="calculator">
+          <div class="calc-row">
+            <div class="calc-input-group">
+              <label for="calcWeight">Weight</label>
+              <input
+                type="number"
+                id="calcWeight"
+                placeholder="Enter weight"
+                value="1"
+              />
+            </div>
+            <div class="calc-input-group">
+              <label for="calcUnit">Unit</label>
+              <select id="calcUnit">
+                <option value="gram">Grams</option>
+                <option value="ounce">Ounces</option>
+                <option value="kg">Kilograms</option>
+              </select>
+            </div>
+            <div class="calc-input-group">
+              <label for="calcKarat">Karat</label>
+              <select id="calcKarat">
+                <option value="24">24K</option>
+                <option value="22">22K</option>
+                <option value="21" selected>21K</option>
+                <option value="18">18K</option>
+                <option value="14">14K</option>
+                <option value="10">10K</option>
+              </select>
+            </div>
+          </div>
+          <div class="calc-result">
+            <span class="calc-result-label">Estimated Value:</span>
+            <span class="calc-result-value" id="calcResult">--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TradingView Charts -->
+      <section class="charts-section">
+        <h2 class="section-title">Live Charts</h2>
+        <div class="charts-grid">
+          <!-- Gold Symbol Overview -->
+          <div class="chart-container gold-chart">
+            <div class="tradingview-widget-container">
+              <div
+                class="tradingview-widget-container__widget"
+                id="tradingview_gold"
+              ></div>
+            </div>
+          </div>
+
+          <!-- BTC Symbol Overview -->
+          <div class="chart-container btc-chart">
+            <div class="tradingview-widget-container">
+              <div
+                class="tradingview-widget-container__widget"
+                id="tradingview_btc"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Stock Ticker Widget -->
+          <div class="chart-container stocks-chart">
+            <h3 class="chart-title">📈 Popular Stocks</h3>
+            <div class="tradingview-widget-container">
+              <div
+                class="tradingview-widget-container__widget"
+                id="tradingview_stocks"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>Data provided by TradingView.</p>
+        <p>&copy; 2025 Gold & BTC Tracker.</p>
+      </footer>
+    </div>
+
+    <!-- TradingView Widget Scripts -->
+    <script
+      type="text/javascript"
+      src="https://s3.tradingview.com/tv.js"
+    ></script>
+    <script src="app.js"></script>
+  </body>
+</html>
