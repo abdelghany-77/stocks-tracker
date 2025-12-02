@@ -37,149 +37,94 @@
           <option value="SAR">SAR (ر.س)</option>
           <option value="AED">AED (د.إ)</option>
         </select>
-        <button id="refreshBtn" class="refresh-btn">🔄 Refresh</button>
+        <button id="refreshBtn" class="refresh-btn">Refresh</button>
       </div>
 
-      <!-- Price Cards -->
-      <section class="price-cards">
-        <!-- Gold Card -->
-        <div class="card gold-card">
-          <div class="card-header">
-            <div class="card-icon gold-icon">🥇</div>
-            <h2>Gold Price</h2>
-          </div>
-          <div class="card-body">
-            <table class="gold-price-table">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Per Gram</th>
-                  <th>Per Ounce</th>
-                  <th>Per Kg</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="sell-row">
-                  <td class="row-label">Sell</td>
-                  <td id="goldGramSell">--</td>
-                  <td id="goldOunceSell">--</td>
-                  <td id="goldKgSell">--</td>
-                </tr>
-                <tr class="buy-row">
-                  <td class="row-label">Buy</td>
-                  <td id="goldGramBuy">--</td>
-                  <td id="goldOunceBuy">--</td>
-                  <td id="goldKgBuy">--</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="card-footer">
-            <div class="change" id="goldChange">
-              <span class="change-label">24h Change:</span>
-              <span class="change-value">--</span>
-            </div>
-            <div class="data-source" id="goldSource">
-              <span class="source-dot"></span>
-              <span class="source-text">Loading...</span>
+      <!-- TradingView Charts -->
+      <section class="charts-section">
+        <h2 class="section-title">Live Charts</h2>
+        <div class="charts-grid">
+          <!-- Gold Symbol Overview -->
+          <div class="chart-container gold-chart">
+            <div class="tradingview-widget-container">
+              <div
+                class="tradingview-widget-container__widget"
+                id="tradingview_gold"
+              ></div>
             </div>
           </div>
-        </div>
 
-        <!-- Bitcoin Card -->
-        <div class="card btc-card">
-          <div class="card-header">
-            <div class="card-icon btc-icon">₿</div>
-            <h2>Bitcoin Price</h2>
-          </div>
-          <div class="card-body">
-            <div class="price-row">
-              <span class="label">Per BTC</span>
-              <span class="price" id="btcPrice">--</span>
-            </div>
-            <div class="price-row">
-              <span class="label">Per Satoshi</span>
-              <span class="price" id="btcSatoshi">--</span>
-            </div>
-            <div class="price-row">
-              <span class="label">Market Cap</span>
-              <span class="price" id="btcMarketCap">--</span>
+          <!-- BTC Symbol Overview -->
+          <div class="chart-container btc-chart">
+            <div class="tradingview-widget-container">
+              <div
+                class="tradingview-widget-container__widget"
+                id="tradingview_btc"
+              ></div>
             </div>
           </div>
-          <div class="card-footer">
-            <div class="change" id="btcChange">
-              <span class="change-label">24h Change:</span>
-              <span class="change-value">--</span>
+
+          <!-- Stock Ticker Widget -->
+          <div class="chart-container stocks-chart">
+            <h3 class="chart-title">📈 Popular Stocks</h3>
+            <div class="tradingview-widget-container">
+              <div
+                class="tradingview-widget-container__widget"
+                id="tradingview_stocks"
+              ></div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Gold Karats Section -->
-      <section class="karats-section">
-        <h2 class="section-title">Gold Prices by Karat</h2>
-        <div class="karats-grid">
-          <div class="karat-card">
-            <div class="karat-header">24K</div>
-            <div class="karat-purity">99.9% Pure</div>
-            <div class="karat-price" id="gold24k">--</div>
-            <div class="karat-unit">per gram</div>
+      <!-- Gold Prices Info Section -->
+      <section class="gold-info-section">
+        <h2 class="section-title">
+          <span class="live-indicator">
+            <span class="live-dot"></span>
+            <span>LIVE</span>
+          </span>
+          أسعار الذهب اليوم في مصر
+        </h2>
+        <div class="gold-info-grid">
+          <div class="gold-info-card">
+            <div class="gold-info-value" id="gold12k">--</div>
+            <div class="gold-info-label">عيار 12</div>
           </div>
-          <div class="karat-card">
-            <div class="karat-header">22K</div>
-            <div class="karat-purity">91.6% Pure</div>
-            <div class="karat-price" id="gold22k">--</div>
-            <div class="karat-unit">per gram</div>
+          <div class="gold-info-card">
+            <div class="gold-info-value" id="gold18k">--</div>
+            <div class="gold-info-label">عيار 18</div>
           </div>
-          <div class="karat-card">
-            <div class="karat-header">21K</div>
-            <div class="karat-purity">87.5% Pure</div>
-            <div class="karat-price" id="gold21k">--</div>
-            <div class="karat-unit">per gram</div>
+          <div class="gold-info-card highlight-sell">
+            <div class="gold-info-value" id="gold21kSell">--</div>
+            <div class="gold-info-label">بيع</div>
+            <div class="gold-info-value" id="gold21k">--</div>
+            <div class="gold-info-label">عيار 21</div>
           </div>
-          <div class="karat-card">
-            <div class="karat-header">18K</div>
-            <div class="karat-purity">75% Pure</div>
-            <div class="karat-price" id="gold18k">--</div>
-            <div class="karat-unit">per gram</div>
+          <div class="gold-info-card">
+            <div class="gold-info-value" id="gold22k">--</div>
+            <div class="gold-info-label">عيار 22</div>
           </div>
-          <div class="karat-card">
-            <div class="karat-header">14K</div>
-            <div class="karat-purity">58.3% Pure</div>
-            <div class="karat-price" id="gold14k">--</div>
-            <div class="karat-unit">per gram</div>
-          </div>
-          <div class="karat-card">
-            <div class="karat-header">10K</div>
-            <div class="karat-purity">41.7% Pure</div>
-            <div class="karat-price" id="gold10k">--</div>
-            <div class="karat-unit">per gram</div>
+          <div class="gold-info-card">
+            <div class="gold-info-value" id="gold24k">--</div>
+            <div class="gold-info-label">عيار 24</div>
           </div>
         </div>
-      </section>
-
-      <!-- Egyptian Gold Pound Section -->
-      <section class="egypt-gold-section">
-        <h2 class="section-title">🇪🇬 Egyptian Gold Pound (جنيه ذهب)</h2>
-        <div class="egypt-gold-card">
-          <div class="egypt-gold-info">
-            <p class="egypt-gold-description">
-              The Egyptian Gold Pound is 8 grams of 21K gold
-            </p>
+        <div class="gold-info-row">
+          <div class="gold-info-card wide">
+            <div class="gold-info-label">جنيه الذهب</div>
+            <div class="gold-info-value" id="goldPoundEGP">--</div>
+            <div class="gold-info-unit">جنيه مصري</div>
           </div>
-          <div class="egypt-gold-prices">
-            <div class="egypt-price-item">
-              <span class="egypt-price-label">Current Price</span>
-              <span class="egypt-price-value" id="egyptGoldPoundPrice">--</span>
-            </div>
-            <div class="egypt-price-item sell">
-              <span class="egypt-price-label">Sell Price</span>
-              <span class="egypt-price-value" id="egyptGoldPoundSell">--</span>
-            </div>
-            <div class="egypt-price-item buy">
-              <span class="egypt-price-label">Buy Price</span>
-              <span class="egypt-price-value" id="egyptGoldPoundBuy">--</span>
-            </div>
+          <div class="gold-info-card wide">
+            <div class="gold-info-label">أونصة الذهب</div>
+            <div class="gold-info-value" id="goldOunceUSD">--</div>
+            <div class="gold-info-unit">دولار</div>
+          </div>
+          <div class="gold-info-card wide">
+            <div class="gold-info-label">الدولار في البنوك</div>
+            <div class="gold-info-value" id="usdEGP">--</div>
+            <div class="gold-info-unit">جنيه مصري</div>
           </div>
         </div>
       </section>
@@ -221,43 +166,6 @@
           <div class="calc-result">
             <span class="calc-result-label">Estimated Value:</span>
             <span class="calc-result-value" id="calcResult">--</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- TradingView Charts -->
-      <section class="charts-section">
-        <h2 class="section-title">Live Charts</h2>
-        <div class="charts-grid">
-          <!-- Gold Symbol Overview -->
-          <div class="chart-container gold-chart">
-            <div class="tradingview-widget-container">
-              <div
-                class="tradingview-widget-container__widget"
-                id="tradingview_gold"
-              ></div>
-            </div>
-          </div>
-
-          <!-- BTC Symbol Overview -->
-          <div class="chart-container btc-chart">
-            <div class="tradingview-widget-container">
-              <div
-                class="tradingview-widget-container__widget"
-                id="tradingview_btc"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Stock Ticker Widget -->
-          <div class="chart-container stocks-chart">
-            <h3 class="chart-title">📈 Popular Stocks</h3>
-            <div class="tradingview-widget-container">
-              <div
-                class="tradingview-widget-container__widget"
-                id="tradingview_stocks"
-              ></div>
-            </div>
           </div>
         </div>
       </section>

@@ -23,6 +23,7 @@ const karatPurity = {
   21: 0.875, // 87.5% (21/24)
   18: 0.75, // 75% (18/24)
   14: 0.5833, // 58.33% (14/24)
+  12: 0.5, // 50% (12/24)
   10: 0.4167, // 41.67% (10/24)
 };
 
@@ -68,6 +69,16 @@ const elements = {
   chartGoldChange: document.getElementById("chartGoldChange"),
   chartBtcPrice: document.getElementById("chartBtcPrice"),
   chartBtcChange: document.getElementById("chartBtcChange"),
+  // Gold Info Section (Arabic) elements
+  gold12kInfo: document.getElementById("gold12k"),
+  gold18kInfo: document.getElementById("gold18k"),
+  gold21kSellInfo: document.getElementById("gold21kSell"),
+  gold21kInfo: document.getElementById("gold21k"),
+  gold22kInfo: document.getElementById("gold22k"),
+  gold24kInfo: document.getElementById("gold24k"),
+  goldPoundEGPInfo: document.getElementById("goldPoundEGP"),
+  goldOunceUSDInfo: document.getElementById("goldOunceUSD"),
+  usdEGPInfo: document.getElementById("usdEGP"),
 };
 
 // Format currency
@@ -119,7 +130,7 @@ async function fetchExchangeRates() {
 
     // Add EGP, SAR, AED if not available (current rates as of Dec 2, 2025 from goldpricez.com)
     if (!globalPrices.exchangeRates.EGP) {
-      globalPrices.exchangeRates.EGP = 47.5; // Current USD/EGP rate
+      globalPrices.exchangeRates.EGP = 50.85; // Current USD/EGP rate
     }
     if (!globalPrices.exchangeRates.SAR) {
       globalPrices.exchangeRates.SAR = 3.75; // Fixed rate
@@ -134,10 +145,22 @@ async function fetchExchangeRates() {
       USD: 1,
       EUR: 0.95,
       GBP: 0.79,
-      EGP: 47.5,
+      EGP: 50.85,
       SAR: 3.75,
       AED: 3.67,
     };
+  }
+
+  // Try to fetch live EGP rate from exchangerate-api
+  try {
+    const egpResponse = await fetch("https://open.er-api.com/v6/latest/USD");
+    const egpData = await egpResponse.json();
+    if (egpData && egpData.rates && egpData.rates.EGP) {
+      globalPrices.exchangeRates.EGP = egpData.rates.EGP;
+      console.log("Live EGP rate:", globalPrices.exchangeRates.EGP);
+    }
+  } catch (error) {
+    console.log("Using fallback EGP rate");
   }
 }
 
@@ -290,22 +313,32 @@ function updateGoldDisplay() {
     }`;
   }
 
-  // Update karat prices (using base gold gram price)
+  // Update karat prices (using base gold gram price) - skip if elements don't exist
   Object.keys(karatPurity).forEach((karat) => {
     const karatElement = document.getElementById(`gold${karat}k`);
-    if (karatElement) {
+    // Skip if this is the Arabic info section element (handled separately)
+    if (
+      karatElement &&
+      !["gold12k", "gold18k", "gold21k", "gold22k", "gold24k"].includes(
+        `gold${karat}k`
+      )
+    ) {
       const karatPrice = goldGram * karatPurity[karat];
       karatElement.textContent = formatCurrency(karatPrice, currency);
     }
   });
 
-  // Gold change
-  const changeElement = elements.goldChange.querySelector(".change-value");
-  const goldChangePercent = globalPrices.goldChange24h;
-  changeElement.textContent = formatChange(goldChangePercent);
-  changeElement.className = `change-value ${
-    goldChangePercent >= 0 ? "positive" : "negative"
-  }`;
+  // Gold change - only update if element exists
+  if (elements.goldChange) {
+    const changeElement = elements.goldChange.querySelector(".change-value");
+    if (changeElement) {
+      const goldChangePercent = globalPrices.goldChange24h;
+      changeElement.textContent = formatChange(goldChangePercent);
+      changeElement.className = `change-value ${
+        goldChangePercent >= 0 ? "positive" : "negative"
+      }`;
+    }
+  }
 
   // Egyptian Gold Pound (جنيه ذهب) - 8 grams of 21K gold
   const egpRate = globalPrices.exchangeRates.EGP || 47.5;
@@ -359,6 +392,77 @@ function updateGoldDisplay() {
       }
     }
   }
+
+  // Update Gold Info Section (Arabic prices in EGP)
+  updateGoldInfoSection();
+}
+
+// Update Gold Info Section with live Egyptian gold prices
+function updateGoldInfoSection() {
+  const egpRate = globalPrices.exchangeRates.EGP || 50.85;
+  const goldOunceUSD = globalPrices.goldOunceUSD;
+
+  // Skip if gold price not loaded yet
+  if (!goldOunceUSD || goldOunceUSD === 0) {
+    return;
+  }
+
+  const goldGramUSD = goldOunceUSD / 31.1035;
+
+  // Calculate prices for each karat in EGP per gram
+  const gold24kEGP = goldGramUSD * karatPurity[24] * egpRate;
+  const gold22kEGP = goldGramUSD * karatPurity[22] * egpRate;
+  const gold21kEGP = goldGramUSD * karatPurity[21] * egpRate;
+  const gold18kEGP = goldGramUSD * karatPurity[18] * egpRate;
+  const gold12kEGP = goldGramUSD * karatPurity[12] * egpRate;
+
+  // Sell price is slightly lower (what shops buy from you)
+  const spread = 0.005; // 0.5% spread
+  const gold21kSellEGP = gold21kEGP * (1 - spread);
+
+  // Egyptian Gold Pound (جنيه ذهب) = 8 grams of 21K gold
+  const goldPoundEGP = gold21kEGP * 8;
+
+  // Format number for display (just number, no currency symbol)
+  const formatNumber = (num) => {
+    return Math.round(num).toLocaleString();
+  };
+
+  // Update karat prices
+  if (elements.gold12kInfo) {
+    elements.gold12kInfo.textContent = formatNumber(gold12kEGP);
+  }
+  if (elements.gold18kInfo) {
+    elements.gold18kInfo.textContent = formatNumber(gold18kEGP);
+  }
+  if (elements.gold21kSellInfo) {
+    elements.gold21kSellInfo.textContent = formatNumber(gold21kSellEGP);
+  }
+  if (elements.gold21kInfo) {
+    elements.gold21kInfo.textContent = formatNumber(gold21kEGP);
+  }
+  if (elements.gold22kInfo) {
+    elements.gold22kInfo.textContent = formatNumber(gold22kEGP);
+  }
+  if (elements.gold24kInfo) {
+    elements.gold24kInfo.textContent = formatNumber(gold24kEGP);
+  }
+
+  // Update gold pound price
+  if (elements.goldPoundEGPInfo) {
+    elements.goldPoundEGPInfo.textContent = formatNumber(goldPoundEGP);
+  }
+
+  // Update gold ounce in USD
+  if (elements.goldOunceUSDInfo) {
+    elements.goldOunceUSDInfo.textContent =
+      Math.round(goldOunceUSD).toLocaleString();
+  }
+
+  // Update USD/EGP rate
+  if (elements.usdEGPInfo) {
+    elements.usdEGPInfo.textContent = egpRate.toFixed(2);
+  }
 }
 
 // Update BTC display
@@ -371,9 +475,12 @@ function updateBTCDisplay() {
   const satoshiPrice = btcPrice / 100000000;
   const marketCap = convertCurrency(globalPrices.btcMarketCap, currency);
 
-  elements.btcPrice.textContent = formatCurrency(btcPrice, currency);
-  elements.btcSatoshi.textContent = formatCurrency(satoshiPrice, currency);
-  elements.btcMarketCap.textContent = formatCurrency(marketCap, currency);
+  if (elements.btcPrice)
+    elements.btcPrice.textContent = formatCurrency(btcPrice, currency);
+  if (elements.btcSatoshi)
+    elements.btcSatoshi.textContent = formatCurrency(satoshiPrice, currency);
+  if (elements.btcMarketCap)
+    elements.btcMarketCap.textContent = formatCurrency(marketCap, currency);
 
   // Update chart price header (always show in USD for BTC)
   if (elements.chartBtcPrice) {
@@ -395,16 +502,29 @@ function updateBTCDisplay() {
     }`;
   }
 
-  // BTC change
-  const changeElement = elements.btcChange.querySelector(".change-value");
-  changeElement.textContent = formatChange(change);
-  changeElement.className = `change-value ${
-    change >= 0 ? "positive" : "negative"
-  }`;
+  // BTC change - only update if element exists
+  if (elements.btcChange) {
+    const changeElement = elements.btcChange.querySelector(".change-value");
+    if (changeElement) {
+      changeElement.textContent = formatChange(change);
+      changeElement.className = `change-value ${
+        change >= 0 ? "positive" : "negative"
+      }`;
+    }
+  }
 }
 
 // Calculate gold value
 function calculateGoldValue() {
+  if (
+    !elements.calcWeight ||
+    !elements.calcUnit ||
+    !elements.calcKarat ||
+    !elements.calcResult
+  ) {
+    return;
+  }
+
   const currency = elements.currency.value;
   const weight = parseFloat(elements.calcWeight.value) || 0;
   const unit = elements.calcUnit.value;
@@ -496,17 +616,27 @@ async function loadAllData() {
 }
 
 // Event Listeners
-elements.currency.addEventListener("change", () => {
-  updateGoldDisplay();
-  updateBTCDisplay();
-  calculateGoldValue();
-});
+if (elements.currency) {
+  elements.currency.addEventListener("change", () => {
+    updateGoldDisplay();
+    updateBTCDisplay();
+    calculateGoldValue();
+  });
+}
 
-elements.refreshBtn.addEventListener("click", loadAllData);
+if (elements.refreshBtn) {
+  elements.refreshBtn.addEventListener("click", loadAllData);
+}
 
-elements.calcWeight.addEventListener("input", calculateGoldValue);
-elements.calcUnit.addEventListener("change", calculateGoldValue);
-elements.calcKarat.addEventListener("change", calculateGoldValue);
+if (elements.calcWeight) {
+  elements.calcWeight.addEventListener("input", calculateGoldValue);
+}
+if (elements.calcUnit) {
+  elements.calcUnit.addEventListener("change", calculateGoldValue);
+}
+if (elements.calcKarat) {
+  elements.calcKarat.addEventListener("change", calculateGoldValue);
+}
 
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
