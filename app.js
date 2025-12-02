@@ -63,6 +63,8 @@ const elements = {
   calcUnit: document.getElementById("calcUnit"),
   calcKarat: document.getElementById("calcKarat"),
   calcResult: document.getElementById("calcResult"),
+  weightDecBtn: document.getElementById("weightDecrement"),
+  weightIncBtn: document.getElementById("weightIncrement"),
   // Chart price headers
   chartGoldPrice: document.getElementById("chartGoldPrice"),
   chartGoldChange: document.getElementById("chartGoldChange"),
@@ -642,6 +644,46 @@ if (elements.calcUnit) {
 }
 if (elements.calcKarat) {
   elements.calcKarat.addEventListener("change", calculateGoldValue);
+}
+
+// Stepper controls for weight
+function getNumeric(attr) {
+  const n = parseFloat(attr);
+  return isNaN(n) ? null : n;
+}
+
+function adjustWeight(direction) {
+  if (!elements.calcWeight) return;
+  const input = elements.calcWeight;
+  const step = getNumeric(input.step) || 0.25;
+  const min = getNumeric(input.min) ?? 0;
+  const max = getNumeric(input.max);
+  const current = parseFloat(input.value) || 0;
+  let next = current + direction * step;
+  if (next < min) next = min;
+  if (typeof max === "number" && next > max) next = max;
+  input.value = Number(next.toFixed(4));
+  calculateGoldValue();
+}
+
+if (elements.weightDecBtn) {
+  elements.weightDecBtn.addEventListener("click", () => adjustWeight(-1));
+}
+if (elements.weightIncBtn) {
+  elements.weightIncBtn.addEventListener("click", () => adjustWeight(1));
+}
+
+// Optional: support arrow keys on the weight input for consistency
+if (elements.calcWeight) {
+  elements.calcWeight.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      adjustWeight(1);
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      adjustWeight(-1);
+    }
+  });
 }
 
 // Initialize

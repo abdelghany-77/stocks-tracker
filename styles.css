@@ -767,6 +767,44 @@ body {
   border-color: var(--gold-primary);
 }
 
+/* Number Stepper for Weight */
+.number-stepper {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  gap: 8px;
+  align-items: center;
+}
+
+.number-stepper input#calcWeight {
+  text-align: center;
+}
+
+.stepper-btn {
+  height: 44px;
+  width: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.stepper-btn:hover {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
+}
+
+.stepper-btn:active {
+  transform: translateY(1px);
+}
+
 .calc-result {
   display: flex;
   justify-content: space-between;
