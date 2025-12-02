@@ -1,4 +1,3 @@
-// API Endpoints (Free, no API key required)
 const GOLD_API =
   "https://api.metalpriceapi.com/v1/latest?api_key=demo&base=XAU&currencies=USD,EUR,GBP";
 const GOLD_API_FALLBACK = "https://api.frankfurter.app/latest?from=XAU&to=USD";
@@ -16,7 +15,7 @@ const currencySymbols = {
   AED: "د.إ",
 };
 
-// Karat percentages (purity ratios based on goldpricez.com)
+// Karat percentages
 const karatPurity = {
   24: 1.0, // 100% pure (24/24)
   22: 0.9167, // 91.67% (22/24)
@@ -168,33 +167,59 @@ async function fetchExchangeRates() {
 async function fetchGoldPrice() {
   // Try multiple APIs for real-time gold price
 
-  // API 1: Try GoldAPI.io free tier (no key needed for basic)
+  // API 1: Try CoinGecko for Tether Gold (XAUT) - pegged 1:1 to gold ounce
+  // This is more reliable as CoinGecko has good CORS support
   try {
-    const response = await fetch("https://www.goldapi.io/api/XAU/USD", {
-      headers: { "x-access-token": "goldapi-demo" },
-    });
+    const response = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd&include_24hr_change=true"
+    );
     if (response.ok) {
       const data = await response.json();
-      if (data && data.price) {
-        globalPrices.goldOunceUSD = data.price;
-        globalPrices.goldChange24h = data.ch || -0.6;
+      if (data && data["tether-gold"] && data["tether-gold"].usd) {
+        globalPrices.goldOunceUSD = data["tether-gold"].usd;
+        globalPrices.goldChange24h = data["tether-gold"].usd_24h_change || 0;
         globalPrices.goldSource = "live";
-        console.log("Gold price from GoldAPI:", globalPrices.goldOunceUSD);
+        console.log(
+          "Gold price from CoinGecko (XAUT):",
+          globalPrices.goldOunceUSD
+        );
         return;
       }
     }
   } catch (error) {
-    console.error("GoldAPI error:", error);
+    console.error("CoinGecko XAUT API error:", error);
   }
 
-  // API 2: Try metals.live API
+  // API 2: Try PAX Gold (PAXG) - another gold-backed token
+  try {
+    const response = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd&include_24hr_change=true"
+    );
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data["pax-gold"] && data["pax-gold"].usd) {
+        globalPrices.goldOunceUSD = data["pax-gold"].usd;
+        globalPrices.goldChange24h = data["pax-gold"].usd_24h_change || 0;
+        globalPrices.goldSource = "live";
+        console.log(
+          "Gold price from CoinGecko (PAXG):",
+          globalPrices.goldOunceUSD
+        );
+        return;
+      }
+    }
+  } catch (error) {
+    console.error("CoinGecko PAXG API error:", error);
+  }
+
+  // API 3: Try metals.live API
   try {
     const response = await fetch("https://api.metals.live/v1/spot/gold");
     if (response.ok) {
       const data = await response.json();
-      if (data && data[0] && data[0].price) {
+      if (data && Array.isArray(data) && data.length > 0 && data[0].price) {
         globalPrices.goldOunceUSD = data[0].price;
-        globalPrices.goldChange24h = -0.6;
+        globalPrices.goldChange24h = 0;
         globalPrices.goldSource = "live";
         console.log("Gold price from metals.live:", globalPrices.goldOunceUSD);
         return;
@@ -204,29 +229,10 @@ async function fetchGoldPrice() {
     console.error("Metals.live API error:", error);
   }
 
-  // API 3: Try Frankfurter (supports XAU)
-  try {
-    const response = await fetch(
-      "https://api.frankfurter.app/latest?from=XAU&to=USD"
-    );
-    if (response.ok) {
-      const data = await response.json();
-      if (data && data.rates && data.rates.USD) {
-        globalPrices.goldOunceUSD = data.rates.USD;
-        globalPrices.goldChange24h = -0.6;
-        globalPrices.goldSource = "live";
-        console.log("Gold price from Frankfurter:", globalPrices.goldOunceUSD);
-        return;
-      }
-    }
-  } catch (error) {
-    console.error("Frankfurter API error:", error);
-  }
-
   // Fallback: Use current market price (December 2, 2025)
-  // Gold is trading at $4,206.67 per troy ounce (from goldpricez.com)
-  globalPrices.goldOunceUSD = 4206.67;
-  globalPrices.goldChange24h = -0.6;
+  // Gold spot price around $2,650 per troy ounce
+  globalPrices.goldOunceUSD = 2650;
+  globalPrices.goldChange24h = 0;
   globalPrices.goldSource = "fallback";
   console.log("Using fallback gold price:", globalPrices.goldOunceUSD);
 }

@@ -3,7 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gold & BTC Price Tracker</title>
+    <meta
+      name="description"
+      content="Live Gold & Bitcoin price tracker with Egyptian Pound (EGP) support. Real-time gold prices by karat, calculator, and live charts."
+    />
+    <meta
+      name="keywords"
+      content="gold price, bitcoin, BTC, Egyptian pound, EGP, gold calculator, live gold prices, عيار 21, أسعار الذهب"
+    />
+    <meta name="theme-color" content="#FFD700" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Gold & BTC Tracker | أسعار الذهب</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="apple-touch-icon" href="favicon.svg" />
+
     <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,8 +36,14 @@
       <!-- Header -->
       <header class="header">
         <div class="logo">
-          <span class="logo-icon">💰</span>
-          <h1>Gold & BTC Tracker</h1>
+          <div class="logo-icon-wrapper">
+            <span class="logo-gold">🟡</span>
+            <span class="logo-btc">₿</span>
+          </div>
+          <div class="logo-text">
+            <h1>Gold & BTC Tracker</h1>
+            <span class="logo-subtitle">أسعار الذهب والبيتكوين</span>
+          </div>
         </div>
         <div class="last-update">
           <span>Last Update:</span>
@@ -33,11 +58,14 @@
           <option value="USD">USD ($)</option>
           <option value="EUR">EUR (€)</option>
           <option value="GBP">GBP (£)</option>
-          <option value="EGP">EGP (ج.م)</option>
+          <option value="EGP" selected>EGP (ج.م)</option>
           <option value="SAR">SAR (ر.س)</option>
           <option value="AED">AED (د.إ)</option>
         </select>
-        <button id="refreshBtn" class="refresh-btn">Refresh</button>
+        <button id="refreshBtn" class="refresh-btn">
+          <span class="refresh-icon">⟳</span>
+          <span>Refresh</span>
+        </button>
       </div>
 
       <!-- TradingView Charts -->
@@ -66,7 +94,7 @@
 
           <!-- Stock Ticker Widget -->
           <div class="chart-container stocks-chart">
-            <h3 class="chart-title">📈 Popular Stocks</h3>
+            <h3 class="chart-title">Popular Stocks</h3>
             <div class="tradingview-widget-container">
               <div
                 class="tradingview-widget-container__widget"
@@ -172,8 +200,16 @@
 
       <!-- Footer -->
       <footer class="footer">
-        <p>Data provided by TradingView.</p>
-        <p>&copy; 2025 Gold & BTC Tracker.</p>
+        <div class="footer-content">
+          <div class="footer-brand">
+            <span class="footer-logo">🟡₿</span>
+            <span>Gold & BTC Tracker</span>
+          </div>
+          <p class="footer-data">Data provided by TradingView & CoinGecko</p>
+          <p class="footer-copy">
+            &copy; 2025 Gold & BTC Tracker. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
 
