@@ -40,7 +40,6 @@ let globalPrices = {
 // DOM Elements
 const elements = {
   updateTime: document.getElementById("updateTime"),
-  currency: document.getElementById("currency"),
   refreshBtn: document.getElementById("refreshBtn"),
   // Gold table elements
   goldGramSell: document.getElementById("goldGramSell"),
@@ -70,13 +69,15 @@ const elements = {
   chartGoldChange: document.getElementById("chartGoldChange"),
   chartBtcPrice: document.getElementById("chartBtcPrice"),
   chartBtcChange: document.getElementById("chartBtcChange"),
-  // Gold Info Section (Arabic) elements
-  gold12kInfo: document.getElementById("gold12k"),
-  gold18kInfo: document.getElementById("gold18k"),
+  // Gold Info Section (Arabic) elements - Buy/Sell for all karats
+  gold18kBuyInfo: document.getElementById("gold18kBuy"),
+  gold18kSellInfo: document.getElementById("gold18kSell"),
+  gold21kBuyInfo: document.getElementById("gold21kBuy"),
   gold21kSellInfo: document.getElementById("gold21kSell"),
-  gold21kInfo: document.getElementById("gold21k"),
-  gold22kInfo: document.getElementById("gold22k"),
-  gold24kInfo: document.getElementById("gold24k"),
+  gold22kBuyInfo: document.getElementById("gold22kBuy"),
+  gold22kSellInfo: document.getElementById("gold22kSell"),
+  gold24kBuyInfo: document.getElementById("gold24kBuy"),
+  gold24kSellInfo: document.getElementById("gold24kSell"),
   goldPoundEGPInfo: document.getElementById("goldPoundEGP"),
   goldOunceUSDInfo: document.getElementById("goldOunceUSD"),
   usdEGPInfo: document.getElementById("usdEGP"),
@@ -107,6 +108,19 @@ function formatCurrency(amount, currency = "USD") {
 function formatChange(change) {
   const prefix = change >= 0 ? "+" : "";
   return `${prefix}${change.toFixed(2)}%`;
+}
+
+// Debounce utility for performance
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
 
 // Update time display
@@ -263,7 +277,7 @@ function convertCurrency(amountUSD, toCurrency) {
 
 // Update gold display
 function updateGoldDisplay() {
-  const currency = elements.currency.value;
+  const currency = "EGP"; // Hardcoded to Egyptian Pound
   const goldOunceUSD = globalPrices.goldOunceUSD;
 
   // Convert to selected currency
@@ -422,11 +436,24 @@ function updateGoldInfoSection() {
   const gold22kEGP = goldGramUSD * karatPurity[22] * egpRate;
   const gold21kEGP = goldGramUSD * karatPurity[21] * egpRate;
   const gold18kEGP = goldGramUSD * karatPurity[18] * egpRate;
-  const gold12kEGP = goldGramUSD * karatPurity[12] * egpRate;
 
   // Sell price is slightly lower (what shops buy from you)
-  const spread = 0.005; // 0.5% spread
-  const gold21kSellEGP = gold21kEGP * (1 - spread);
+  // Buy price is slightly higher (what you pay to shops)
+  const spreadSell = 0.005; // 0.5% spread for sell
+  const spreadBuy = 0.005; // 0.5% spread for buy
+
+  // Calculate buy and sell prices for each karat
+  const gold18kBuyEGP = gold18kEGP * (1 + spreadBuy);
+  const gold18kSellEGP = gold18kEGP * (1 - spreadSell);
+
+  const gold21kBuyEGP = gold21kEGP * (1 + spreadBuy);
+  const gold21kSellEGP = gold21kEGP * (1 - spreadSell);
+
+  const gold22kBuyEGP = gold22kEGP * (1 + spreadBuy);
+  const gold22kSellEGP = gold22kEGP * (1 - spreadSell);
+
+  const gold24kBuyEGP = gold24kEGP * (1 + spreadBuy);
+  const gold24kSellEGP = gold24kEGP * (1 - spreadSell);
 
   // Egyptian Gold Pound (جنيه ذهب) = 8 grams of 21K gold
   const goldPoundEGP = gold21kEGP * 8;
@@ -436,24 +463,36 @@ function updateGoldInfoSection() {
     return Math.round(num).toLocaleString();
   };
 
-  // Update karat prices
-  if (elements.gold12kInfo) {
-    elements.gold12kInfo.textContent = formatNumber(gold12kEGP);
+  // Update 18K prices
+  if (elements.gold18kBuyInfo) {
+    elements.gold18kBuyInfo.textContent = formatNumber(gold18kBuyEGP);
   }
-  if (elements.gold18kInfo) {
-    elements.gold18kInfo.textContent = formatNumber(gold18kEGP);
+  if (elements.gold18kSellInfo) {
+    elements.gold18kSellInfo.textContent = formatNumber(gold18kSellEGP);
+  }
+
+  // Update 21K prices
+  if (elements.gold21kBuyInfo) {
+    elements.gold21kBuyInfo.textContent = formatNumber(gold21kBuyEGP);
   }
   if (elements.gold21kSellInfo) {
     elements.gold21kSellInfo.textContent = formatNumber(gold21kSellEGP);
   }
-  if (elements.gold21kInfo) {
-    elements.gold21kInfo.textContent = formatNumber(gold21kEGP);
+
+  // Update 22K prices
+  if (elements.gold22kBuyInfo) {
+    elements.gold22kBuyInfo.textContent = formatNumber(gold22kBuyEGP);
   }
-  if (elements.gold22kInfo) {
-    elements.gold22kInfo.textContent = formatNumber(gold22kEGP);
+  if (elements.gold22kSellInfo) {
+    elements.gold22kSellInfo.textContent = formatNumber(gold22kSellEGP);
   }
-  if (elements.gold24kInfo) {
-    elements.gold24kInfo.textContent = formatNumber(gold24kEGP);
+
+  // Update 24K prices
+  if (elements.gold24kBuyInfo) {
+    elements.gold24kBuyInfo.textContent = formatNumber(gold24kBuyEGP);
+  }
+  if (elements.gold24kSellInfo) {
+    elements.gold24kSellInfo.textContent = formatNumber(gold24kSellEGP);
   }
 
   // Update gold pound price
@@ -475,7 +514,7 @@ function updateGoldInfoSection() {
 
 // Update BTC display
 function updateBTCDisplay() {
-  const currency = elements.currency.value;
+  const currency = "EGP"; // Hardcoded to Egyptian Pound
   const btcUSD = globalPrices.btcUSD;
 
   // Convert to selected currency
@@ -533,7 +572,7 @@ function calculateGoldValue() {
     return;
   }
 
-  const currency = elements.currency.value;
+  const currency = "EGP"; // Hardcoded to Egyptian Pound
   const weight = parseFloat(elements.calcWeight.value) || 0;
   const unit = elements.calcUnit.value;
   const karat = parseInt(elements.calcKarat.value);
@@ -583,7 +622,7 @@ function initTradingViewWidgets() {
       </iframe>`;
   }
 
-  // Stocks Ticker Widget (10 Popular Stocks)
+  // Stocks Ticker Widget (20 Popular Stocks - Expanded)
   const stocksWidgetContainer = document.getElementById("tradingview_stocks");
   if (stocksWidgetContainer) {
     stocksWidgetContainer.innerHTML = `
@@ -591,7 +630,7 @@ function initTradingViewWidgets() {
         scrolling="no" 
         allowtransparency="true" 
         frameborder="0" 
-        src="https://www.tradingview.com/embed-widget/symbol-overview/?locale=en#%7B%22symbols%22%3A%5B%5B%22Apple%22%2C%22AAPL%7C1D%22%5D%2C%5B%22Tesla%22%2C%22TSLA%7C1D%22%5D%2C%5B%22Microsoft%22%2C%22MSFT%7C1D%22%5D%2C%5B%22Amazon%22%2C%22AMZN%7C1D%22%5D%2C%5B%22Google%22%2C%22GOOGL%7C1D%22%5D%2C%5B%22NVIDIA%22%2C%22NVDA%7C1D%22%5D%2C%5B%22Meta%22%2C%22META%7C1D%22%5D%2C%5B%22Netflix%22%2C%22NFLX%7C1D%22%5D%2C%5B%22AMD%22%2C%22AMD%7C1D%22%5D%2C%5B%22Intel%22%2C%22INTC%7C1D%22%5D%5D%2C%22chartOnly%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22colorTheme%22%3A%22dark%22%2C%22showVolume%22%3Afalse%2C%22showMA%22%3Afalse%2C%22hideDateRanges%22%3Afalse%2C%22hideMarketStatus%22%3Afalse%2C%22hideSymbolLogo%22%3Afalse%2C%22scalePosition%22%3A%22right%22%2C%22scaleMode%22%3A%22Normal%22%2C%22fontFamily%22%3A%22-apple-system%2C%20BlinkMacSystemFont%2C%20Trebuchet%20MS%2C%20Roboto%2C%20Ubuntu%2C%20sans-serif%22%2C%22fontSize%22%3A%2210%22%2C%22noTimeScale%22%3Afalse%2C%22valuesTracking%22%3A%221%22%2C%22changeMode%22%3A%22price-and-percent%22%2C%22chartType%22%3A%22area%22%2C%22lineWidth%22%3A2%2C%22lineType%22%3A0%2C%22dateRanges%22%3A%5B%221d%7C1%22%2C%221m%7C30%22%2C%223m%7C60%22%2C%2212m%7C1D%22%2C%2260m%7C1W%22%2C%22all%7C1M%22%5D%7D" 
+        src="https://www.tradingview.com/embed-widget/symbol-overview/?locale=en#%7B%22symbols%22%3A%5B%5B%22Apple%22%2C%22AAPL%7C1D%22%5D%2C%5B%22Microsoft%22%2C%22MSFT%7C1D%22%5D%2C%5B%22NVIDIA%22%2C%22NVDA%7C1D%22%5D%2C%5B%22Tesla%22%2C%22TSLA%7C1D%22%5D%2C%5B%22Amazon%22%2C%22AMZN%7C1D%22%5D%2C%5B%22Google%22%2C%22GOOGL%7C1D%22%5D%2C%5B%22Meta%22%2C%22META%7C1D%22%5D%2C%5B%22Netflix%22%2C%22NFLX%7C1D%22%5D%2C%5B%22AMD%22%2C%22AMD%7C1D%22%5D%2C%5B%22Intel%22%2C%22INTC%7C1D%22%5D%2C%5B%22Berkshire%22%2C%22BRK.B%7C1D%22%5D%2C%5B%22JPMorgan%22%2C%22JPM%7C1D%22%5D%2C%5B%22Visa%22%2C%22V%7C1D%22%5D%2C%5B%22Walmart%22%2C%22WMT%7C1D%22%5D%2C%5B%22Disney%22%2C%22DIS%7C1D%22%5D%2C%5B%22Coca-Cola%22%2C%22KO%7C1D%22%5D%2C%5B%22Nike%22%2C%22NKE%7C1D%22%5D%2C%5B%22Pfizer%22%2C%22PFE%7C1D%22%5D%2C%5B%22Boeing%22%2C%22BA%7C1D%22%5D%2C%5B%22McDonald's%22%2C%22MCD%7C1D%22%5D%5D%2C%22chartOnly%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22colorTheme%22%3A%22dark%22%2C%22showVolume%22%3Afalse%2C%22showMA%22%3Afalse%2C%22hideDateRanges%22%3Afalse%2C%22hideMarketStatus%22%3Afalse%2C%22hideSymbolLogo%22%3Afalse%2C%22scalePosition%22%3A%22right%22%2C%22scaleMode%22%3A%22Normal%22%2C%22fontFamily%22%3A%22-apple-system%2C%20BlinkMacSystemFont%2C%20Trebuchet%20MS%2C%20Roboto%2C%20Ubuntu%2C%20sans-serif%22%2C%22fontSize%22%3A%2210%22%2C%22noTimeScale%22%3Afalse%2C%22valuesTracking%22%3A%221%22%2C%22changeMode%22%3A%22price-and-percent%22%2C%22chartType%22%3A%22area%22%2C%22lineWidth%22%3A2%2C%22lineType%22%3A0%2C%22dateRanges%22%3A%5B%221d%7C1%22%2C%221m%7C30%22%2C%223m%7C60%22%2C%2212m%7C1D%22%2C%2260m%7C1W%22%2C%22all%7C1M%22%5D%7D" 
         style="width: 100%; height: 100%; margin: 0 !important; padding: 0 !important;">
       </iframe>`;
   }
@@ -624,20 +663,16 @@ async function loadAllData() {
 }
 
 // Event Listeners
-if (elements.currency) {
-  elements.currency.addEventListener("change", () => {
-    updateGoldDisplay();
-    updateBTCDisplay();
-    calculateGoldValue();
-  });
-}
-
 if (elements.refreshBtn) {
   elements.refreshBtn.addEventListener("click", loadAllData);
 }
 
 if (elements.calcWeight) {
-  elements.calcWeight.addEventListener("input", calculateGoldValue);
+  // Debounce for manual typing, instant for buttons
+  elements.calcWeight.addEventListener(
+    "input",
+    debounce(calculateGoldValue, 300)
+  );
 }
 if (elements.calcUnit) {
   elements.calcUnit.addEventListener("change", calculateGoldValue);
@@ -663,7 +698,8 @@ function adjustWeight(direction) {
   if (next < min) next = min;
   if (typeof max === "number" && next > max) next = max;
   input.value = Number(next.toFixed(4));
-  calculateGoldValue();
+  // Use requestAnimationFrame for smoother DOM updates
+  requestAnimationFrame(() => calculateGoldValue());
 }
 
 if (elements.weightDecBtn) {

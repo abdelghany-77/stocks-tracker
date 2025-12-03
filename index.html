@@ -23,6 +23,10 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="apple-touch-icon" href="favicon.svg" />
 
+    <link rel="dns-prefetch" href="https://api.coingecko.com" />
+    <link rel="dns-prefetch" href="https://open.er-api.com" />
+    <link rel="dns-prefetch" href="https://s3.tradingview.com" />
+
     <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -41,32 +45,18 @@
             <span class="logo-btc">₿</span>
           </div>
           <div class="logo-text">
-            <h1>Gold & BTC Tracker</h1>
-            <span class="logo-subtitle">أسعار الذهب والبيتكوين</span>
+            <h1>Gold & Stocks Tracker</h1>
           </div>
         </div>
         <div class="last-update">
           <span>Last Update:</span>
           <span id="updateTime">Loading...</span>
         </div>
-      </header>
-
-      <!-- Currency Selector -->
-      <div class="currency-selector">
-        <label for="currency">Display Currency:</label>
-        <select id="currency">
-          <option value="USD">USD ($)</option>
-          <option value="EUR">EUR (€)</option>
-          <option value="GBP">GBP (£)</option>
-          <option value="EGP" selected>EGP (ج.م)</option>
-          <option value="SAR">SAR (ر.س)</option>
-          <option value="AED">AED (د.إ)</option>
-        </select>
         <button id="refreshBtn" class="refresh-btn">
           <span class="refresh-icon">⟳</span>
           <span>Refresh</span>
         </button>
-      </div>
+      </header>
 
       <!-- Gold Prices Info Section -->
       <section class="gold-info-section">
@@ -79,26 +69,56 @@
         </h2>
         <div class="gold-info-grid">
           <div class="gold-info-card">
-            <div class="gold-info-value" id="gold12k">--</div>
-            <div class="gold-info-label">عيار 12</div>
-          </div>
-          <div class="gold-info-card">
-            <div class="gold-info-value" id="gold18k">--</div>
             <div class="gold-info-label">عيار 18</div>
+            <div class="price-row">
+              <div class="price-item">
+                <div class="price-label">شراء</div>
+                <div class="gold-info-value" id="gold18kBuy">--</div>
+              </div>
+              <div class="price-item">
+                <div class="price-label">بيع</div>
+                <div class="gold-info-value" id="gold18kSell">--</div>
+              </div>
+            </div>
           </div>
           <div class="gold-info-card highlight-sell">
-            <div class="gold-info-value" id="gold21kSell">--</div>
-            <div class="gold-info-label">بيع</div>
-            <div class="gold-info-value" id="gold21k">--</div>
             <div class="gold-info-label">عيار 21</div>
+            <div class="price-row">
+              <div class="price-item">
+                <div class="price-label">شراء</div>
+                <div class="gold-info-value" id="gold21kBuy">--</div>
+              </div>
+              <div class="price-item">
+                <div class="price-label">بيع</div>
+                <div class="gold-info-value" id="gold21kSell">--</div>
+              </div>
+            </div>
           </div>
           <div class="gold-info-card">
-            <div class="gold-info-value" id="gold22k">--</div>
             <div class="gold-info-label">عيار 22</div>
+            <div class="price-row">
+              <div class="price-item">
+                <div class="price-label">شراء</div>
+                <div class="gold-info-value" id="gold22kBuy">--</div>
+              </div>
+              <div class="price-item">
+                <div class="price-label">بيع</div>
+                <div class="gold-info-value" id="gold22kSell">--</div>
+              </div>
+            </div>
           </div>
           <div class="gold-info-card">
-            <div class="gold-info-value" id="gold24k">--</div>
             <div class="gold-info-label">عيار 24</div>
+            <div class="price-row">
+              <div class="price-item">
+                <div class="price-label">شراء</div>
+                <div class="gold-info-value" id="gold24kBuy">--</div>
+              </div>
+              <div class="price-item">
+                <div class="price-label">بيع</div>
+                <div class="gold-info-value" id="gold24kSell">--</div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="gold-info-row">
@@ -122,7 +142,10 @@
 
       <!-- Calculator Section -->
       <section class="calculator-section">
-        <h2 class="section-title">Gold Calculator</h2>
+        <h2 class="section-title">
+          <span>📱</span>
+          Gold Price Calculator
+        </h2>
         <div class="calculator">
           <div class="calc-row">
             <div class="calc-input-group">
@@ -166,12 +189,10 @@
             <div class="calc-input-group">
               <label for="calcKarat">Karat</label>
               <select id="calcKarat">
-                <option value="24">24K</option>
-                <option value="22">22K</option>
-                <option value="21" selected>21K</option>
-                <option value="18">18K</option>
-                <option value="14">14K</option>
-                <option value="10">10K</option>
+                <option value="24">24K (100%)</option>
+                <option value="22">22K (91.67%)</option>
+                <option value="21" selected>21K (87.5%)</option>
+                <option value="18">18K (75%)</option>
               </select>
             </div>
           </div>
@@ -233,7 +254,8 @@
     <script
       type="text/javascript"
       src="https://s3.tradingview.com/tv.js"
+      defer
     ></script>
-    <script src="app.js"></script>
+    <script src="app.js" defer></script>
   </body>
 </html>
