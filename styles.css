@@ -1062,13 +1062,13 @@ body {
   background: var(--bg-card);
   backdrop-filter: blur(15px);
   border-radius: 16px;
-  padding: 22px;
+  padding: 20px 12px;
   text-align: center;
   border: 1px solid var(--border-color);
   transition: var(--transition-smooth);
   direction: rtl;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   /* Performance hint for animations */
   will-change: transform;
 }
@@ -1121,6 +1121,10 @@ body {
   color: var(--gold-primary);
   margin-bottom: 5px;
   text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  direction: ltr;
+  width: 100%;
+  overflow: visible;
+  white-space: nowrap;
 }
 
 .gold-info-card.highlight-sell .gold-info-value:first-child {
@@ -1145,9 +1149,10 @@ body {
 /* Price row for buy/sell display */
 .price-row {
   display: flex;
-  gap: 15px;
+  gap: 8px;
   width: 100%;
   justify-content: space-between;
+  direction: rtl;
 }
 
 .price-item {
@@ -1156,11 +1161,13 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 12px;
+  padding: 14px 6px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: var(--transition-smooth);
+  min-width: 0;
+  overflow: visible;
 }
 
 .price-item:hover {
@@ -1178,7 +1185,12 @@ body {
 
 .price-item .gold-info-value {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
+  width: 100%;
+  text-align: center;
+  direction: ltr;
+  overflow: visible;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {
