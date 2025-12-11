@@ -638,7 +638,18 @@ function initTradingViewWidgets() {
 
 // Load all data
 async function loadAllData() {
-  // Show loading state
+  // Show loading toast
+  const loadingToast = document.getElementById("loadingToast");
+  if (loadingToast) {
+    loadingToast.classList.add("show");
+  }
+
+  // Add loading state to refresh button
+  if (elements.refreshBtn) {
+    elements.refreshBtn.classList.add("loading");
+  }
+
+  // Show loading state on price elements
   document
     .querySelectorAll(".price, .karat-price, .calc-result-value")
     .forEach((el) => {
@@ -660,6 +671,16 @@ async function loadAllData() {
     .forEach((el) => {
       el.classList.remove("loading");
     });
+
+  // Hide loading toast after a short delay
+  setTimeout(() => {
+    if (loadingToast) {
+      loadingToast.classList.remove("show");
+    }
+    if (elements.refreshBtn) {
+      elements.refreshBtn.classList.remove("loading");
+    }
+  }, 500);
 }
 
 // Event Listeners

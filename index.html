@@ -23,37 +23,55 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="apple-touch-icon" href="favicon.svg" />
 
+    <!-- Preconnect & DNS Prefetch for Performance -->
+    <link rel="preconnect" href="https://api.coingecko.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
     <link rel="dns-prefetch" href="https://api.coingecko.com" />
     <link rel="dns-prefetch" href="https://open.er-api.com" />
     <link rel="dns-prefetch" href="https://s3.tradingview.com" />
+    <link rel="dns-prefetch" href="https://unpkg.com" />
 
-    <link rel="stylesheet" href="styles.css" />
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- Loading Toast -->
+    <div id="loadingToast" class="loading-toast">
+      <div class="loading-spinner"></div>
+      <span>جاري تحديث الأسعار...</span>
+    </div>
+
     <div class="container">
       <!-- Header -->
       <header class="header">
         <div class="logo">
           <div class="logo-icon-wrapper">
-            <span class="logo-gold">🟡</span>
-            <span class="logo-btc">₿</span>
+            <i data-lucide="coins" class="logo-icon gold-icon"></i>
+            <i data-lucide="bitcoin" class="logo-icon btc-icon"></i>
           </div>
           <div class="logo-text">
             <h1>Gold & Stocks Tracker</h1>
           </div>
         </div>
         <div class="last-update">
-          <span>Last Update:</span>
-          <span id="updateTime">Loading...</span>
+          <i data-lucide="clock" class="update-icon"></i>
+          <div class="update-text">
+            <span>Last Update</span>
+            <span id="updateTime">Loading...</span>
+          </div>
         </div>
         <button id="refreshBtn" class="refresh-btn">
-          <span class="refresh-icon">⟳</span>
+          <i data-lucide="refresh-cw" class="refresh-icon"></i>
           <span>Refresh</span>
         </button>
       </header>
@@ -63,8 +81,10 @@
         <h2 class="section-title">
           <span class="live-indicator">
             <span class="live-dot"></span>
+            <i data-lucide="radio" class="live-icon"></i>
             <span>LIVE</span>
           </span>
+          <i data-lucide="trending-up" class="section-icon gold-color"></i>
           أسعار الذهب اليوم في مصر
         </h2>
         <div class="gold-info-grid">
@@ -143,13 +163,17 @@
       <!-- Calculator Section -->
       <section class="calculator-section">
         <h2 class="section-title">
-          <span>📱</span>
+          <i data-lucide="calculator" class="section-icon gold-color"></i>
           Gold Price Calculator
+          <span class="calc-subtitle">حاسبة أسعار الذهب</span>
         </h2>
         <div class="calculator">
           <div class="calc-row">
             <div class="calc-input-group">
-              <label for="calcWeight">Weight</label>
+              <label for="calcWeight">
+                <i data-lucide="scale" class="input-icon"></i>
+                Weight
+              </label>
               <div class="number-stepper">
                 <button
                   type="button"
@@ -157,7 +181,7 @@
                   class="stepper-btn"
                   aria-label="Decrease weight"
                 >
-                  −
+                  <i data-lucide="minus"></i>
                 </button>
                 <input
                   type="number"
@@ -174,12 +198,15 @@
                   class="stepper-btn"
                   aria-label="Increase weight"
                 >
-                  +
+                  <i data-lucide="plus"></i>
                 </button>
               </div>
             </div>
             <div class="calc-input-group">
-              <label for="calcUnit">Unit</label>
+              <label for="calcUnit">
+                <i data-lucide="ruler" class="input-icon"></i>
+                Unit
+              </label>
               <select id="calcUnit">
                 <option value="gram">Grams</option>
                 <option value="ounce">Ounces</option>
@@ -187,7 +214,10 @@
               </select>
             </div>
             <div class="calc-input-group">
-              <label for="calcKarat">Karat</label>
+              <label for="calcKarat">
+                <i data-lucide="gem" class="input-icon"></i>
+                Karat
+              </label>
               <select id="calcKarat">
                 <option value="24">24K (100%)</option>
                 <option value="22">22K (91.67%)</option>
@@ -197,7 +227,10 @@
             </div>
           </div>
           <div class="calc-result">
-            <span class="calc-result-label">Estimated Value:</span>
+            <span class="calc-result-label">
+              <i data-lucide="banknote" class="result-icon"></i>
+              Estimated Value:
+            </span>
             <span class="calc-result-value" id="calcResult">--</span>
           </div>
         </div>
@@ -205,10 +238,17 @@
 
       <!-- TradingView Charts -->
       <section class="charts-section">
-        <h2 class="section-title">Live Charts</h2>
+        <h2 class="section-title">
+          <i data-lucide="line-chart" class="section-icon"></i>
+          Live Charts
+        </h2>
         <div class="charts-grid">
           <!-- Gold Symbol Overview -->
           <div class="chart-container gold-chart">
+            <h3 class="chart-title">
+              <i data-lucide="coins" class="chart-icon gold-color"></i>
+              Gold Price
+            </h3>
             <div class="tradingview-widget-container">
               <div
                 class="tradingview-widget-container__widget"
@@ -219,6 +259,10 @@
 
           <!-- BTC Symbol Overview -->
           <div class="chart-container btc-chart">
+            <h3 class="chart-title">
+              <i data-lucide="bitcoin" class="chart-icon btc-color"></i>
+              Bitcoin Price
+            </h3>
             <div class="tradingview-widget-container">
               <div
                 class="tradingview-widget-container__widget"
@@ -229,7 +273,10 @@
 
           <!-- Stock Ticker Widget -->
           <div class="chart-container stocks-chart">
-            <h3 class="chart-title">Popular Stocks</h3>
+            <h3 class="chart-title">
+              <i data-lucide="bar-chart-3" class="chart-icon stocks-color"></i>
+              Popular Stocks
+            </h3>
             <div class="tradingview-widget-container">
               <div
                 class="tradingview-widget-container__widget"
@@ -244,7 +291,18 @@
       <footer class="footer">
         <div class="footer-content">
           <div class="footer-brand">
-            <span>&copy; 2025 Gold & Stocks Tracker</span>
+            <i data-lucide="copyright" class="footer-icon"></i>
+            <span>2025 Gold & Stocks Tracker</span>
+          </div>
+          <div class="footer-links">
+            <a
+              href="https://github.com/abdelghany-77"
+              target="_blank"
+              rel="noopener"
+              class="footer-link"
+            >
+              <i data-lucide="github"></i>
+            </a>
           </div>
         </div>
       </footer>
@@ -257,5 +315,13 @@
       defer
     ></script>
     <script src="app.js" defer></script>
+    <script>
+      // Initialize Lucide icons when DOM is ready
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof lucide !== "undefined") {
+          lucide.createIcons();
+        }
+      });
+    </script>
   </body>
 </html>
