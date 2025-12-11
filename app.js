@@ -594,45 +594,71 @@ function calculateGoldValue() {
   elements.calcResult.textContent = formatCurrency(value, currency);
 }
 
-// Initialize TradingView widgets with Symbol Overview (shows live price)
-function initTradingViewWidgets() {
-  // Gold Symbol Overview Widget (embedded with script)
-  const goldWidgetContainer = document.getElementById("tradingview_gold");
-  if (goldWidgetContainer) {
-    goldWidgetContainer.innerHTML = `
-      <iframe 
-        scrolling="no" 
-        allowtransparency="true" 
-        frameborder="0" 
-        src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_gold&symbol=TVC%3AGOLD&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" 
-        style="width: 100%; height: 100%; margin: 0 !important; padding: 0 !important;">
-      </iframe>`;
-  }
+// Track which charts have been loaded
+const chartsLoaded = { gold: false, btc: false, stocks: false };
 
-  // BTC Symbol Overview Widget (embedded with script)
-  const btcWidgetContainer = document.getElementById("tradingview_btc");
-  if (btcWidgetContainer) {
-    btcWidgetContainer.innerHTML = `
-      <iframe 
-        scrolling="no" 
-        allowtransparency="true" 
-        frameborder="0" 
-        src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_btc&symbol=BITSTAMP%3ABTCUSD&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" 
-        style="width: 100%; height: 100%; margin: 0 !important; padding: 0 !important;">
-      </iframe>`;
-  }
+// Load a single TradingView chart
+function loadChart(chartType) {
+  if (chartsLoaded[chartType]) return;
 
-  // Stocks Ticker Widget (20 Popular Stocks - Expanded)
-  const stocksWidgetContainer = document.getElementById("tradingview_stocks");
-  if (stocksWidgetContainer) {
-    stocksWidgetContainer.innerHTML = `
-      <iframe 
-        scrolling="no" 
-        allowtransparency="true" 
-        frameborder="0" 
-        src="https://www.tradingview.com/embed-widget/symbol-overview/?locale=en#%7B%22symbols%22%3A%5B%5B%22Apple%22%2C%22AAPL%7C1D%22%5D%2C%5B%22Microsoft%22%2C%22MSFT%7C1D%22%5D%2C%5B%22NVIDIA%22%2C%22NVDA%7C1D%22%5D%2C%5B%22Tesla%22%2C%22TSLA%7C1D%22%5D%2C%5B%22Amazon%22%2C%22AMZN%7C1D%22%5D%2C%5B%22Google%22%2C%22GOOGL%7C1D%22%5D%2C%5B%22Meta%22%2C%22META%7C1D%22%5D%2C%5B%22Netflix%22%2C%22NFLX%7C1D%22%5D%2C%5B%22AMD%22%2C%22AMD%7C1D%22%5D%2C%5B%22Intel%22%2C%22INTC%7C1D%22%5D%2C%5B%22Berkshire%22%2C%22BRK.B%7C1D%22%5D%2C%5B%22JPMorgan%22%2C%22JPM%7C1D%22%5D%2C%5B%22Visa%22%2C%22V%7C1D%22%5D%2C%5B%22Walmart%22%2C%22WMT%7C1D%22%5D%2C%5B%22Disney%22%2C%22DIS%7C1D%22%5D%2C%5B%22Coca-Cola%22%2C%22KO%7C1D%22%5D%2C%5B%22Nike%22%2C%22NKE%7C1D%22%5D%2C%5B%22Pfizer%22%2C%22PFE%7C1D%22%5D%2C%5B%22Boeing%22%2C%22BA%7C1D%22%5D%2C%5B%22McDonald's%22%2C%22MCD%7C1D%22%5D%5D%2C%22chartOnly%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22colorTheme%22%3A%22dark%22%2C%22showVolume%22%3Afalse%2C%22showMA%22%3Afalse%2C%22hideDateRanges%22%3Afalse%2C%22hideMarketStatus%22%3Afalse%2C%22hideSymbolLogo%22%3Afalse%2C%22scalePosition%22%3A%22right%22%2C%22scaleMode%22%3A%22Normal%22%2C%22fontFamily%22%3A%22-apple-system%2C%20BlinkMacSystemFont%2C%20Trebuchet%20MS%2C%20Roboto%2C%20Ubuntu%2C%20sans-serif%22%2C%22fontSize%22%3A%2210%22%2C%22noTimeScale%22%3Afalse%2C%22valuesTracking%22%3A%221%22%2C%22changeMode%22%3A%22price-and-percent%22%2C%22chartType%22%3A%22area%22%2C%22lineWidth%22%3A2%2C%22lineType%22%3A0%2C%22dateRanges%22%3A%5B%221d%7C1%22%2C%221m%7C30%22%2C%223m%7C60%22%2C%2212m%7C1D%22%2C%2260m%7C1W%22%2C%22all%7C1M%22%5D%7D" 
-        style="width: 100%; height: 100%; margin: 0 !important; padding: 0 !important;">
-      </iframe>`;
+  const placeholder = document.querySelector(
+    `.chart-placeholder[data-chart="${chartType}"]`
+  );
+
+  if (chartType === "gold") {
+    const container = document.getElementById("tradingview_gold");
+    if (container) {
+      if (placeholder) placeholder.style.display = "none";
+      container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_gold&symbol=TVC%3AGOLD&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" style="width: 100%; height: 100%;"></iframe>`;
+      chartsLoaded.gold = true;
+    }
+  } else if (chartType === "btc") {
+    const container = document.getElementById("tradingview_btc");
+    if (container) {
+      if (placeholder) placeholder.style.display = "none";
+      container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_btc&symbol=BITSTAMP%3ABTCUSD&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" style="width: 100%; height: 100%;"></iframe>`;
+      chartsLoaded.btc = true;
+    }
+  } else if (chartType === "stocks") {
+    const container = document.getElementById("tradingview_stocks");
+    if (container) {
+      if (placeholder) placeholder.style.display = "none";
+      container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/embed-widget/symbol-overview/?locale=en#%7B%22symbols%22%3A%5B%5B%22Apple%22%2C%22AAPL%7C1D%22%5D%2C%5B%22Microsoft%22%2C%22MSFT%7C1D%22%5D%2C%5B%22NVIDIA%22%2C%22NVDA%7C1D%22%5D%2C%5B%22Tesla%22%2C%22TSLA%7C1D%22%5D%2C%5B%22Amazon%22%2C%22AMZN%7C1D%22%5D%2C%5B%22Google%22%2C%22GOOGL%7C1D%22%5D%2C%5B%22Meta%22%2C%22META%7C1D%22%5D%2C%5B%22Netflix%22%2C%22NFLX%7C1D%22%5D%2C%5B%22AMD%22%2C%22AMD%7C1D%22%5D%2C%5B%22Intel%22%2C%22INTC%7C1D%22%5D%2C%5B%22Berkshire%22%2C%22BRK.B%7C1D%22%5D%2C%5B%22JPMorgan%22%2C%22JPM%7C1D%22%5D%2C%5B%22Visa%22%2C%22V%7C1D%22%5D%2C%5B%22Walmart%22%2C%22WMT%7C1D%22%5D%2C%5B%22Disney%22%2C%22DIS%7C1D%22%5D%2C%5B%22Coca-Cola%22%2C%22KO%7C1D%22%5D%2C%5B%22Nike%22%2C%22NKE%7C1D%22%5D%2C%5B%22Pfizer%22%2C%22PFE%7C1D%22%5D%2C%5B%22Boeing%22%2C%22BA%7C1D%22%5D%2C%5B%22McDonald's%22%2C%22MCD%7C1D%22%5D%5D%2C%22chartOnly%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22colorTheme%22%3A%22dark%22%2C%22showVolume%22%3Afalse%2C%22showMA%22%3Afalse%2C%22hideDateRanges%22%3Afalse%2C%22hideMarketStatus%22%3Afalse%2C%22hideSymbolLogo%22%3Afalse%2C%22scalePosition%22%3A%22right%22%2C%22scaleMode%22%3A%22Normal%22%2C%22fontFamily%22%3A%22-apple-system%2C%20BlinkMacSystemFont%2C%20Trebuchet%20MS%2C%20Roboto%2C%20Ubuntu%2C%20sans-serif%22%2C%22fontSize%22%3A%2210%22%2C%22noTimeScale%22%3Afalse%2C%22valuesTracking%22%3A%221%22%2C%22changeMode%22%3A%22price-and-percent%22%2C%22chartType%22%3A%22area%22%2C%22lineWidth%22%3A2%2C%22lineType%22%3A0%2C%22dateRanges%22%3A%5B%221d%7C1%22%2C%221m%7C30%22%2C%223m%7C60%22%2C%2212m%7C1D%22%2C%2260m%7C1W%22%2C%22all%7C1M%22%5D%7D" style="width: 100%; height: 100%;"></iframe>`;
+      chartsLoaded.stocks = true;
+    }
+  }
+}
+
+// Lazy load TradingView charts using Intersection Observer
+function initLazyCharts() {
+  const chartsSection = document.getElementById("chartsSection");
+  if (!chartsSection) return;
+
+  // Use Intersection Observer if available
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Load all charts when section becomes visible
+            loadChart("gold");
+            loadChart("btc");
+            loadChart("stocks");
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: "100px" }
+    );
+
+    observer.observe(chartsSection);
+  } else {
+    // Fallback: load charts after a delay
+    setTimeout(() => {
+      loadChart("gold");
+      loadChart("btc");
+      loadChart("stocks");
+    }, 2000);
   }
 }
 
@@ -745,8 +771,11 @@ if (elements.calcWeight) {
 
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
+  // Load data first (priority)
   loadAllData();
-  initTradingViewWidgets();
+
+  // Lazy load charts when user scrolls to them
+  initLazyCharts();
 
   // Auto-refresh every 5 minutes
   setInterval(loadAllData, 5 * 60 * 1000);

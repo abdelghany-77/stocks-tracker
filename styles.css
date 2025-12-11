@@ -39,25 +39,28 @@
   contain: layout style;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* Smooth scrolling - only when reduced motion is not preferred */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
   background: var(--bg-primary);
   background-image: radial-gradient(
       ellipse at 20% 0%,
-      rgba(255, 215, 0, 0.08) 0%,
-      transparent 50%
+      rgba(255, 215, 0, 0.06) 0%,
+      transparent 40%
     ),
     radial-gradient(
       ellipse at 80% 100%,
-      rgba(247, 147, 26, 0.08) 0%,
-      transparent 50%
+      rgba(247, 147, 26, 0.06) 0%,
+      transparent 40%
     );
-  background-attachment: fixed;
+  /* Remove fixed attachment - causes repaint on scroll */
   color: var(--text-primary);
   min-height: 100vh;
   line-height: 1.6;
@@ -103,40 +106,21 @@ body {
   flex-wrap: wrap;
   gap: 20px;
   position: relative;
-  background: var(--bg-card);
-  backdrop-filter: blur(30px);
+  background: rgba(30, 37, 48, 0.95);
   border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-color);
   overflow: hidden;
 }
 
-.header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -50%;
-  width: 200%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 215, 0, 0.03),
-    transparent,
-    rgba(247, 147, 26, 0.03),
-    transparent
-  );
-  animation: headerShimmer 8s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes headerShimmer {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(50%);
+/* Disable heavy animations for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
@@ -176,32 +160,17 @@ body {
     rgba(247, 147, 26, 0.25)
   );
   border-radius: 20px;
-  backdrop-filter: blur(15px);
   border: 2px solid var(--border-color);
-  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  /* transition: var(--transition-smooth); */
-  /* animation: logoFloat 3s ease-in-out infinite; */
-}
-
-@keyframes logoFloat {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
 }
 
 .logo-icon-wrapper:hover {
-  transform: scale(1.05) translateY(-5px);
-  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4);
   border-color: var(--gold-primary);
 }
 
-/* Lucide Icon Styles */
+/* SVG Icon Styles */
 .logo-icon {
   position: absolute;
   width: 24px;
@@ -213,14 +182,12 @@ body {
   left: 10px;
   top: 12px;
   color: var(--gold-primary);
-  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.5));
 }
 
 .logo-icon.btc-icon {
   right: 10px;
   bottom: 12px;
   color: var(--btc-primary);
-  filter: drop-shadow(0 0 6px rgba(247, 147, 26, 0.5));
   width: 20px;
   height: 20px;
 }
@@ -239,10 +206,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-.logo-icon {
-  font-size: 2.5rem;
-}
-
 .logo h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -251,7 +214,6 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -0.5px;
-  text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
   margin: 0;
   line-height: 1.2;
 }
@@ -457,12 +419,11 @@ body {
 }
 
 .card {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
+  background: rgba(30, 37, 48, 0.95);
   border-radius: 20px;
   padding: 28px;
   border: 1px solid var(--border-color);
-  transition: var(--transition-smooth);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -665,7 +626,6 @@ body {
 .source-dot.live {
   background-color: var(--positive);
   box-shadow: 0 0 6px var(--positive);
-  animation: pulse 2s infinite;
 }
 
 .source-dot.fallback {
@@ -674,7 +634,6 @@ body {
 
 .source-dot.loading {
   background-color: var(--text-secondary);
-  animation: pulse 1s infinite;
 }
 
 .source-text {
@@ -731,15 +690,19 @@ body {
 }
 
 .karat-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(10px);
+  background: rgba(30, 37, 48, 0.95);
   border-radius: 16px;
   padding: 22px;
   text-align: center;
   border: 1px solid var(--border-color);
-  transition: var(--transition-smooth);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
+}
+
+.karat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .karat-card::before {
@@ -903,8 +866,7 @@ body {
 }
 
 .calculator {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
+  background: rgba(30, 37, 48, 0.95);
   border-radius: 24px;
   padding: 35px;
   border: 2px solid var(--border-color);
@@ -922,9 +884,9 @@ body {
   height: 100%;
   background: linear-gradient(
     135deg,
-    rgba(255, 215, 0, 0.05),
+    rgba(255, 215, 0, 0.03),
     transparent 50%,
-    rgba(247, 147, 26, 0.05)
+    rgba(247, 147, 26, 0.03)
   );
   pointer-events: none;
 }
@@ -1033,19 +995,6 @@ body {
     0 4px 20px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
-  animation: resultGlow 3s ease-in-out infinite;
-}
-
-@keyframes resultGlow {
-  0%,
-  100% {
-    box-shadow: inset 0 0 40px rgba(255, 215, 0, 0.1),
-      0 4px 20px rgba(0, 0, 0, 0.2);
-  }
-  50% {
-    box-shadow: inset 0 0 50px rgba(255, 215, 0, 0.2),
-      0 6px 25px rgba(255, 215, 0, 0.15);
-  }
 }
 
 .calc-result::before {
@@ -1126,20 +1075,7 @@ body {
   height: 8px;
   background: var(--positive);
   border-radius: 50%;
-  animation: livePulse 1.5s ease-in-out infinite;
   box-shadow: 0 0 8px var(--positive);
-}
-
-@keyframes livePulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(0.8);
-  }
 }
 
 .gold-info-grid {
@@ -1158,18 +1094,20 @@ body {
 }
 
 .gold-info-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(15px);
+  background: rgba(30, 37, 48, 0.95);
   border-radius: 16px;
   padding: 20px 12px;
   text-align: center;
   border: 1px solid var(--border-color);
-  transition: var(--transition-smooth);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   direction: rtl;
   position: relative;
   overflow: visible;
-  /* Performance hint for animations */
-  will-change: transform;
+}
+
+.gold-info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .gold-info-card::after {
@@ -1314,18 +1252,32 @@ body {
 }
 
 .chart-container {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
+  background: rgba(30, 37, 48, 0.95);
   border-radius: 20px;
   padding: 25px;
   border: 1px solid var(--border-color);
   width: 100%;
-  transition: var(--transition-smooth);
+  transition: box-shadow 0.2s ease;
 }
 
 .chart-container:hover {
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: var(--shadow-soft);
+}
+
+/* Chart placeholder for lazy loading */
+.chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+}
+
+.chart-loading-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
 }
 
 .chart-container.gold-chart {
@@ -1680,8 +1632,7 @@ body {
   top: 20px;
   left: 50%;
   transform: translateX(-50%) translateY(-100px);
-  background: linear-gradient(135deg, var(--bg-card), rgba(255, 215, 0, 0.15));
-  backdrop-filter: blur(20px);
+  background: rgba(30, 37, 48, 0.98);
   border: 1px solid var(--gold-primary);
   border-radius: 16px;
   padding: 16px 28px;
@@ -1689,10 +1640,10 @@ body {
   align-items: center;
   gap: 14px;
   z-index: 10000;
-  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: all 0.3s ease;
   color: var(--text-primary);
   font-weight: 500;
   font-size: 1rem;

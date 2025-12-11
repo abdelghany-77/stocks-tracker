@@ -23,24 +23,38 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="apple-touch-icon" href="favicon.svg" />
 
-    <!-- Preconnect & DNS Prefetch for Performance -->
+    <!-- Preconnect for API calls only -->
     <link rel="preconnect" href="https://api.coingecko.com" crossorigin />
-    <link rel="preconnect" href="https://unpkg.com" crossorigin />
     <link rel="dns-prefetch" href="https://api.coingecko.com" />
     <link rel="dns-prefetch" href="https://open.er-api.com" />
-    <link rel="dns-prefetch" href="https://s3.tradingview.com" />
-    <link rel="dns-prefetch" href="https://unpkg.com" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <!-- Critical CSS inline for faster first paint -->
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #0a0e13;
+        color: #fff;
+        margin: 0;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .loading-toast {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-100px);
+        z-index: 9999;
+        opacity: 0;
+        transition: all 0.3s;
+      }
+      .loading-toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+    </style>
 
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -56,22 +70,79 @@
       <header class="header">
         <div class="logo">
           <div class="logo-icon-wrapper">
-            <i data-lucide="coins" class="logo-icon gold-icon"></i>
-            <i data-lucide="bitcoin" class="logo-icon btc-icon"></i>
+            <svg
+              class="logo-icon gold-icon"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="8" cy="8" r="6" />
+              <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+              <path d="M7 6h1v4" />
+              <path d="m16.71 13.88.7.71-2.82 2.82" />
+            </svg>
+            <svg
+              class="logo-icon btc-icon"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"
+              />
+            </svg>
           </div>
           <div class="logo-text">
             <h1>Gold & Stocks Tracker</h1>
           </div>
         </div>
         <div class="last-update">
-          <i data-lucide="clock" class="update-icon"></i>
+          <svg
+            class="update-icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
           <div class="update-text">
             <span>Last Update</span>
             <span id="updateTime">Loading...</span>
           </div>
         </div>
         <button id="refreshBtn" class="refresh-btn">
-          <i data-lucide="refresh-cw" class="refresh-icon"></i>
+          <svg
+            class="refresh-icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+            <path d="M8 16H3v5" />
+          </svg>
           <span>Refresh</span>
         </button>
       </header>
@@ -81,10 +152,39 @@
         <h2 class="section-title">
           <span class="live-indicator">
             <span class="live-dot"></span>
-            <i data-lucide="radio" class="live-icon"></i>
+            <svg
+              class="live-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9" />
+              <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5" />
+              <circle cx="12" cy="12" r="2" />
+              <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5" />
+              <path d="M19.1 4.9C23 8.8 23 15.1 19.1 19" />
+            </svg>
             <span>LIVE</span>
           </span>
-          <i data-lucide="trending-up" class="section-icon gold-color"></i>
+          <svg
+            class="section-icon gold-color"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+            <polyline points="16 7 22 7 22 13" />
+          </svg>
           أسعار الذهب اليوم في مصر
         </h2>
         <div class="gold-info-grid">
@@ -163,7 +263,28 @@
       <!-- Calculator Section -->
       <section class="calculator-section">
         <h2 class="section-title">
-          <i data-lucide="calculator" class="section-icon gold-color"></i>
+          <svg
+            class="section-icon gold-color"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect width="16" height="20" x="4" y="2" rx="2" />
+            <line x1="8" x2="16" y1="6" y2="6" />
+            <line x1="16" x2="16" y1="14" y2="18" />
+            <path d="M16 10h.01" />
+            <path d="M12 10h.01" />
+            <path d="M8 10h.01" />
+            <path d="M12 14h.01" />
+            <path d="M8 14h.01" />
+            <path d="M12 18h.01" />
+            <path d="M8 18h.01" />
+          </svg>
           Gold Price Calculator
           <span class="calc-subtitle">حاسبة أسعار الذهب</span>
         </h2>
@@ -171,7 +292,23 @@
           <div class="calc-row">
             <div class="calc-input-group">
               <label for="calcWeight">
-                <i data-lucide="scale" class="input-icon"></i>
+                <svg
+                  class="input-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                  <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                  <path d="M7 21h10" />
+                  <path d="M12 3v18" />
+                  <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+                </svg>
                 Weight
               </label>
               <div class="number-stepper">
@@ -181,7 +318,18 @@
                   class="stepper-btn"
                   aria-label="Decrease weight"
                 >
-                  <i data-lucide="minus"></i>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                  </svg>
                 </button>
                 <input
                   type="number"
@@ -198,13 +346,43 @@
                   class="stepper-btn"
                   aria-label="Increase weight"
                 >
-                  <i data-lucide="plus"></i>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                  </svg>
                 </button>
               </div>
             </div>
             <div class="calc-input-group">
               <label for="calcUnit">
-                <i data-lucide="ruler" class="input-icon"></i>
+                <svg
+                  class="input-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"
+                  />
+                  <path d="m14.5 12.5 2-2" />
+                  <path d="m11.5 9.5 2-2" />
+                  <path d="m8.5 6.5 2-2" />
+                  <path d="m17.5 15.5 2-2" />
+                </svg>
                 Unit
               </label>
               <select id="calcUnit">
@@ -215,7 +393,21 @@
             </div>
             <div class="calc-input-group">
               <label for="calcKarat">
-                <i data-lucide="gem" class="input-icon"></i>
+                <svg
+                  class="input-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M6 3h12l4 6-10 13L2 9Z" />
+                  <path d="M11 3 8 9l4 13 4-13-3-6" />
+                  <path d="M2 9h20" />
+                </svg>
                 Karat
               </label>
               <select id="calcKarat">
@@ -228,7 +420,21 @@
           </div>
           <div class="calc-result">
             <span class="calc-result-label">
-              <i data-lucide="banknote" class="result-icon"></i>
+              <svg
+                class="result-icon"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect width="20" height="12" x="2" y="6" rx="2" />
+                <circle cx="12" cy="12" r="2" />
+                <path d="M6 12h.01M18 12h.01" />
+              </svg>
               Estimated Value:
             </span>
             <span class="calc-result-value" id="calcResult">--</span>
@@ -236,20 +442,51 @@
         </div>
       </section>
 
-      <!-- TradingView Charts -->
-      <section class="charts-section">
+      <!-- TradingView Charts - Lazy Loaded -->
+      <section class="charts-section" id="chartsSection">
         <h2 class="section-title">
-          <i data-lucide="line-chart" class="section-icon"></i>
+          <svg
+            class="section-icon"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+            <path d="m19 9-5 5-4-4-3 3" />
+          </svg>
           Live Charts
         </h2>
         <div class="charts-grid">
           <!-- Gold Symbol Overview -->
           <div class="chart-container gold-chart">
             <h3 class="chart-title">
-              <i data-lucide="coins" class="chart-icon gold-color"></i>
+              <svg
+                class="chart-icon gold-color"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="8" cy="8" r="6" />
+                <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+                <path d="M7 6h1v4" />
+                <path d="m16.71 13.88.7.71-2.82 2.82" />
+              </svg>
               Gold Price
             </h3>
             <div class="tradingview-widget-container">
+              <div class="chart-placeholder" data-chart="gold">
+                <div class="chart-loading-text">Loading chart...</div>
+              </div>
               <div
                 class="tradingview-widget-container__widget"
                 id="tradingview_gold"
@@ -260,10 +497,27 @@
           <!-- BTC Symbol Overview -->
           <div class="chart-container btc-chart">
             <h3 class="chart-title">
-              <i data-lucide="bitcoin" class="chart-icon btc-color"></i>
+              <svg
+                class="chart-icon btc-color"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"
+                />
+              </svg>
               Bitcoin Price
             </h3>
             <div class="tradingview-widget-container">
+              <div class="chart-placeholder" data-chart="btc">
+                <div class="chart-loading-text">Loading chart...</div>
+              </div>
               <div
                 class="tradingview-widget-container__widget"
                 id="tradingview_btc"
@@ -274,10 +528,26 @@
           <!-- Stock Ticker Widget -->
           <div class="chart-container stocks-chart">
             <h3 class="chart-title">
-              <i data-lucide="bar-chart-3" class="chart-icon stocks-color"></i>
+              <svg
+                class="chart-icon stocks-color"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+                <path d="M7 16l4-8 4 5 5-6" />
+              </svg>
               Popular Stocks
             </h3>
             <div class="tradingview-widget-container">
+              <div class="chart-placeholder" data-chart="stocks">
+                <div class="chart-loading-text">Loading chart...</div>
+              </div>
               <div
                 class="tradingview-widget-container__widget"
                 id="tradingview_stocks"
@@ -291,7 +561,20 @@
       <footer class="footer">
         <div class="footer-content">
           <div class="footer-brand">
-            <i data-lucide="copyright" class="footer-icon"></i>
+            <svg
+              class="footer-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M15 9.354a4 4 0 1 0 0 5.292" />
+            </svg>
             <span>2025 Gold & Stocks Tracker</span>
           </div>
           <div class="footer-links">
@@ -300,28 +583,30 @@
               target="_blank"
               rel="noopener"
               class="footer-link"
+              title="GitHub Profile"
+              aria-label="Visit GitHub Profile"
             >
-              <i data-lucide="github"></i>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"
+                />
+                <path d="M9 18c-4.51 2-5-2-7-2" />
+              </svg>
             </a>
           </div>
         </div>
       </footer>
     </div>
 
-    <!-- TradingView Widget Scripts -->
-    <script
-      type="text/javascript"
-      src="https://s3.tradingview.com/tv.js"
-      defer
-    ></script>
     <script src="app.js" defer></script>
-    <script>
-      // Initialize Lucide icons when DOM is ready
-      document.addEventListener("DOMContentLoaded", function () {
-        if (typeof lucide !== "undefined") {
-          lucide.createIcons();
-        }
-      });
-    </script>
   </body>
 </html>
