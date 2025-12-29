@@ -595,7 +595,7 @@ function calculateGoldValue() {
 }
 
 // Track which charts have been loaded
-const chartsLoaded = { gold: false, btc: false, stocks: false };
+const chartsLoaded = { gold: false, silver: false, btc: false, stocks: false };
 
 // Load a single TradingView chart
 function loadChart(chartType) {
@@ -618,6 +618,16 @@ function loadChart(chartType) {
       if (placeholder) placeholder.style.display = "none";
       container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_btc&symbol=BITSTAMP%3ABTCUSD&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" style="width: 100%; height: 100%;"></iframe>`;
       chartsLoaded.btc = true;
+    }
+  } else if (chartType === "silver") {
+    const container = document.getElementById("tradingview_silver");
+    if (container) {
+      const placeholder = document.querySelector(
+        `.chart-placeholder[data-chart="silver"]`
+      );
+      if (placeholder) placeholder.style.display = "none";
+      container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_silver&symbol=TVC%3ASILVER&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" style="width: 100%; height: 100%;"></iframe>`;
+      chartsLoaded.silver = true;
     }
   } else if (chartType === "stocks") {
     const container = document.getElementById("tradingview_stocks");
@@ -642,6 +652,7 @@ function initLazyCharts() {
           if (entry.isIntersecting) {
             // Load all charts when section becomes visible
             loadChart("gold");
+            loadChart("silver");
             loadChart("btc");
             loadChart("stocks");
             observer.disconnect();
