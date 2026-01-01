@@ -37,6 +37,17 @@ let globalPrices = {
   exchangeRates: { USD: 1 },
 };
 
+// Error state tracking
+let errorState = {
+  gold: { hasError: false, message: "" },
+  btc: { hasError: false, message: "" },
+  exchange: { hasError: false, message: "" },
+  lastErrorTime: null,
+  dismissedUntil: null,
+};
+
+let errorToastTimeout = null;
+
 // DOM Elements
 const elements = {
   updateTime: document.getElementById("updateTime"),
@@ -81,6 +92,15 @@ const elements = {
   goldPoundEGPInfo: document.getElementById("goldPoundEGP"),
   goldOunceUSDInfo: document.getElementById("goldOunceUSD"),
   usdEGPInfo: document.getElementById("usdEGP"),
+  // Error toast elements
+  errorToast: document.getElementById("errorToast"),
+  errorDescription: document.getElementById("errorDescription"),
+  errorRetryBtn: document.getElementById("errorRetryBtn"),
+  errorDismissBtn: document.getElementById("errorDismissBtn"),
+  errorProgress: document.getElementById("errorProgress"),
+  // Success toast elements
+  successToast: document.getElementById("successToast"),
+  successSubtitle: document.getElementById("successSubtitle"),
 };
 
 // Format currency
@@ -121,6 +141,152 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
+}
+
+// ============================================
+// ERROR HANDLING UTILITIES
+// ============================================
+
+// Show error toast notification
+function showErrorToast(message, autoHide = true) {
+  // Don't show if dismissed recently (within 30 seconds)
+  if (errorState.dismissedUntil && Date.now() < errorState.dismissedUntil) {
+    return;
+  }
+
+  if (elements.errorToast) {
+    if (elements.errorDescription) {
+      elements.errorDescription.textContent = message;
+    }
+
+    elements.errorToast.classList.add("show");
+
+    // Reset and start progress animation
+    if (elements.errorProgress) {
+      elements.errorProgress.classList.remove("animate");
+      void elements.errorProgress.offsetWidth; // Force reflow
+      elements.errorProgress.classList.add("animate");
+    }
+
+    // Clear any existing timeout
+    if (errorToastTimeout) {
+      clearTimeout(errorToastTimeout);
+    }
+
+    // Auto-hide after 8 seconds if enabled
+    if (autoHide) {
+      errorToastTimeout = setTimeout(() => {
+        hideErrorToast();
+      }, 8000);
+    }
+  }
+}
+
+// Hide error toast
+function hideErrorToast() {
+  if (elements.errorToast) {
+    elements.errorToast.classList.remove("show");
+  }
+  if (elements.errorProgress) {
+    elements.errorProgress.classList.remove("animate");
+  }
+  if (errorToastTimeout) {
+    clearTimeout(errorToastTimeout);
+    errorToastTimeout = null;
+  }
+}
+
+// Dismiss error toast (with cooldown)
+function dismissErrorToast() {
+  hideErrorToast();
+  // Don't show errors again for 30 seconds after dismissing
+  errorState.dismissedUntil = Date.now() + 30000;
+}
+
+// Success toast timeout reference
+let successToastTimeout = null;
+
+// Show success toast notification
+function showSuccessToast(message = "Live data refreshed successfully") {
+  if (elements.successToast) {
+    if (elements.successSubtitle) {
+      elements.successSubtitle.textContent = message;
+    }
+
+    elements.successToast.classList.add("show");
+
+    // Clear any existing timeout
+    if (successToastTimeout) {
+      clearTimeout(successToastTimeout);
+    }
+
+    // Auto-hide after 3 seconds
+    successToastTimeout = setTimeout(() => {
+      hideSuccessToast();
+    }, 3000);
+  }
+}
+
+// Hide success toast
+function hideSuccessToast() {
+  if (elements.successToast) {
+    elements.successToast.classList.remove("show");
+  }
+  if (successToastTimeout) {
+    clearTimeout(successToastTimeout);
+    successToastTimeout = null;
+  }
+}
+
+// Check all error states and show appropriate message
+function checkAndShowErrors() {
+  const errors = [];
+
+  if (errorState.gold.hasError) {
+    errors.push("Gold prices");
+  }
+  if (errorState.btc.hasError) {
+    errors.push("Bitcoin data");
+  }
+  if (errorState.exchange.hasError) {
+    errors.push("Exchange rates");
+  }
+
+  if (errors.length > 0) {
+    const message = `Unable to fetch: ${errors.join(", ")}. Using cached data.`;
+    showErrorToast(message);
+    errorState.lastErrorTime = Date.now();
+
+    // Add error state to refresh button briefly
+    if (elements.refreshBtn) {
+      elements.refreshBtn.classList.add("error");
+      setTimeout(() => {
+        elements.refreshBtn.classList.remove("error");
+      }, 1000);
+    }
+  } else {
+    // All data loaded successfully
+    hideErrorToast();
+
+    // Show success toast if this was a manual refresh or recovering from errors
+    if (errorState.lastErrorTime) {
+      showSuccessToast("Connection restored - live data updated");
+      errorState.lastErrorTime = null;
+    } else {
+      // Show a subtle success for regular refreshes
+      showSuccessToast();
+    }
+  }
+}
+
+// Reset all error states
+function resetErrorStates() {
+  errorState.gold.hasError = false;
+  errorState.gold.message = "";
+  errorState.btc.hasError = false;
+  errorState.btc.message = "";
+  errorState.exchange.hasError = false;
+  errorState.exchange.message = "";
 }
 
 // Update time display
@@ -195,6 +361,9 @@ async function fetchGoldPrice() {
         globalPrices.goldOunceUSD = data["tether-gold"].usd;
         globalPrices.goldChange24h = data["tether-gold"].usd_24h_change || 0;
         globalPrices.goldSource = "live";
+        // Clear any previous error state for gold
+        errorState.gold.hasError = false;
+        errorState.gold.message = "";
         console.log(
           "Gold price from CoinGecko (XAUT):",
           globalPrices.goldOunceUSD
@@ -217,6 +386,8 @@ async function fetchGoldPrice() {
         globalPrices.goldOunceUSD = data["pax-gold"].usd;
         globalPrices.goldChange24h = data["pax-gold"].usd_24h_change || 0;
         globalPrices.goldSource = "live";
+        errorState.gold.hasError = false;
+        errorState.gold.message = "";
         console.log(
           "Gold price from CoinGecko (PAXG):",
           globalPrices.goldOunceUSD
@@ -251,6 +422,10 @@ async function fetchGoldPrice() {
   globalPrices.goldChange24h = 0;
   globalPrices.goldSource = "fallback";
   console.log("Using fallback gold price:", globalPrices.goldOunceUSD);
+
+  // Mark as error since we're using fallback
+  errorState.gold.hasError = true;
+  errorState.gold.message = "All gold price APIs failed, using cached price";
 }
 
 // Fetch BTC price
@@ -263,9 +438,15 @@ async function fetchBTCPrice() {
       globalPrices.btcUSD = data.bitcoin.usd || 0;
       globalPrices.btcChange24h = data.bitcoin.usd_24h_change || 0;
       globalPrices.btcMarketCap = data.bitcoin.usd_market_cap || 0;
+      // Clear any previous error state for BTC
+      errorState.btc.hasError = false;
+      errorState.btc.message = "";
     }
   } catch (error) {
     console.error("Error fetching BTC price:", error);
+    // Set error state for BTC
+    errorState.btc.hasError = true;
+    errorState.btc.message = "Failed to fetch Bitcoin data";
   }
 }
 
@@ -675,11 +856,17 @@ function initLazyCharts() {
 
 // Load all data
 async function loadAllData() {
+  // Reset error states before fetching
+  resetErrorStates();
+
   // Show loading toast
   const loadingToast = document.getElementById("loadingToast");
   if (loadingToast) {
     loadingToast.classList.add("show");
   }
+
+  // Hide any existing error toast while loading
+  hideErrorToast();
 
   // Add loading state to refresh button
   if (elements.refreshBtn) {
@@ -717,6 +904,9 @@ async function loadAllData() {
     if (elements.refreshBtn) {
       elements.refreshBtn.classList.remove("loading");
     }
+
+    // Check for errors after loading completes
+    checkAndShowErrors();
   }, 500);
 }
 
@@ -790,4 +980,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Auto-refresh every 5 minutes
   setInterval(loadAllData, 5 * 60 * 1000);
+});
+
+// ============================================
+// ERROR TOAST EVENT LISTENERS
+// ============================================
+
+// Error toast retry button
+if (elements.errorRetryBtn) {
+  elements.errorRetryBtn.addEventListener("click", () => {
+    hideErrorToast();
+    // Clear the dismissed state to allow showing errors again
+    errorState.dismissedUntil = null;
+    loadAllData();
+  });
+}
+
+// Error toast dismiss button
+if (elements.errorDismissBtn) {
+  elements.errorDismissBtn.addEventListener("click", () => {
+    dismissErrorToast();
+  });
+}
+
+// Listen for online/offline events
+window.addEventListener("online", () => {
+  console.log("Connection restored, refreshing data...");
+  loadAllData();
+});
+
+window.addEventListener("offline", () => {
+  showErrorToast("You are offline. Prices may be outdated.", false);
 });
