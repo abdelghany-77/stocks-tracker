@@ -29,6 +29,10 @@
   --silver-primary: #c0c0c0;
   --silver-glow: rgba(192, 192, 192, 0.3);
 
+  /* USD Palette */
+  --usdegp-primary: #00b894;
+  --usdegp-glow: rgba(0, 184, 148, 0.35);
+
   /* Modern Dark Background */
   --bg-primary: #080b10;
   --bg-secondary: #0f1419;
@@ -56,10 +60,10 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
-  --shadow-glow-gold: 0 0 50px rgba(255, 215, 0, 0.2),
-    0 0 100px rgba(255, 215, 0, 0.1);
-  --shadow-glow-btc: 0 0 50px rgba(247, 147, 26, 0.2),
-    0 0 100px rgba(247, 147, 26, 0.1);
+  --shadow-glow-gold:
+    0 0 50px rgba(255, 215, 0, 0.2), 0 0 100px rgba(255, 215, 0, 0.1);
+  --shadow-glow-btc:
+    0 0 50px rgba(247, 147, 26, 0.2), 0 0 100px rgba(247, 147, 26, 0.1);
 
   /* Transitions */
   --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -80,7 +84,12 @@
 }
 
 body {
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
     sans-serif;
   background: var(--bg-gradient);
   color: var(--text-primary);
@@ -98,7 +107,8 @@ body::before {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       ellipse at 25% 15%,
       rgba(255, 215, 0, 0.08) 0%,
       transparent 50%
@@ -188,7 +198,9 @@ body::before {
     rgba(22, 28, 38, 0.9) 100%
   );
   border-radius: 28px;
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.05),
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
     inset 0 -1px 0 rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-color);
   overflow: hidden;
@@ -429,7 +441,8 @@ body::before {
   transition: var(--transition-bounce);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.25),
+  box-shadow:
+    0 4px 20px rgba(255, 215, 0, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
@@ -457,13 +470,16 @@ body::before {
 .refresh-btn:hover {
   transform: translateY(-4px) scale(1.02);
   background-position: 100% 50%;
-  box-shadow: var(--shadow-glow-gold), 0 8px 30px rgba(255, 215, 0, 0.35),
+  box-shadow:
+    var(--shadow-glow-gold),
+    0 8px 30px rgba(255, 215, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .refresh-btn:active {
   transform: translateY(-1px) scale(0.98);
-  box-shadow: 0 2px 15px rgba(255, 215, 0, 0.2),
+  box-shadow:
+    0 2px 15px rgba(255, 215, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -507,6 +523,10 @@ body::before {
 
 .stocks-color {
   color: #4caf50;
+}
+
+.usdegp-color {
+  color: var(--usdegp-primary);
 }
 
 .section-icon {
@@ -565,7 +585,9 @@ body::before {
   border-radius: 20px;
   padding: 28px;
   border: 1px solid var(--border-color);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -845,7 +867,9 @@ body::before {
   padding: 22px;
   text-align: center;
   border: 1px solid var(--border-color);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -1141,7 +1165,8 @@ body::before {
   );
   border-radius: 20px;
   border: 3px solid var(--gold-secondary);
-  box-shadow: inset 0 0 40px rgba(255, 215, 0, 0.1),
+  box-shadow:
+    inset 0 0 40px rgba(255, 215, 0, 0.1),
     0 4px 20px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
@@ -1172,7 +1197,9 @@ body::before {
   font-size: 2rem;
   font-weight: 700;
   color: var(--gold-primary);
-  text-shadow: 0 0 25px rgba(255, 215, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow:
+    0 0 25px rgba(255, 215, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 1;
   letter-spacing: 1px;
@@ -1221,7 +1248,8 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 2px;
   border: 1px solid rgba(0, 210, 106, 0.25);
-  box-shadow: 0 0 30px rgba(0, 210, 106, 0.15),
+  box-shadow:
+    0 0 30px rgba(0, 210, 106, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
@@ -1351,7 +1379,9 @@ body::before {
 .gold-info-card:hover {
   transform: translateY(-6px) scale(1.02);
   border-color: rgba(255, 215, 0, 0.3);
-  box-shadow: var(--shadow-glow-gold), 0 15px 40px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    var(--shadow-glow-gold),
+    0 15px 40px rgba(0, 0, 0, 0.3);
 }
 
 .gold-info-card:hover::after {
@@ -1376,7 +1406,9 @@ body::before {
 }
 
 .gold-info-card.highlight-sell:hover {
-  box-shadow: 0 0 60px rgba(0, 210, 106, 0.25), 0 15px 40px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 0 60px rgba(0, 210, 106, 0.25),
+    0 15px 40px rgba(0, 0, 0, 0.3);
 }
 
 /* Wide info cards with gold accent */
@@ -1768,7 +1800,8 @@ body::before {
   border-color: rgba(255, 215, 0, 0.4);
   color: var(--gold-primary);
   transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2),
+  box-shadow:
+    0 8px 25px rgba(255, 215, 0, 0.2),
     0 0 0 1px rgba(255, 215, 0, 0.1);
 }
 
@@ -2351,7 +2384,8 @@ body::before {
   transform: translateX(-50%) translateY(-120%) scale(0.95);
   z-index: 10000;
   opacity: 0;
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+  transition:
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
     opacity 0.3s ease;
   pointer-events: none;
   max-width: calc(100% - 32px);
@@ -2383,9 +2417,12 @@ body::before {
   padding: 18px 22px;
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   backdrop-filter: blur(24px) saturate(180%);
-  box-shadow: 0 20px 60px -15px rgba(255, 59, 48, 0.35),
-    0 0 0 1px rgba(255, 100, 100, 0.15), 0 1px 2px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 20px 60px -15px rgba(255, 59, 48, 0.35),
+    0 0 0 1px rgba(255, 100, 100, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -2475,12 +2512,14 @@ body::before {
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 100, 100, 0.4),
+    box-shadow:
+      0 0 0 0 rgba(255, 100, 100, 0.4),
       0 0 20px -5px rgba(255, 59, 48, 0.3);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 0 0 8px rgba(255, 100, 100, 0),
+    box-shadow:
+      0 0 0 8px rgba(255, 100, 100, 0),
       0 0 30px -5px rgba(255, 59, 48, 0.5);
   }
 }
@@ -2550,7 +2589,8 @@ body::before {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
-  box-shadow: 0 4px 15px -3px rgba(255, 82, 82, 0.5),
+  box-shadow:
+    0 4px 15px -3px rgba(255, 82, 82, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
@@ -2578,14 +2618,17 @@ body::before {
 
 .error-retry-btn:hover {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 25px -5px rgba(255, 82, 82, 0.6),
-    0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 8px 25px -5px rgba(255, 82, 82, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background: linear-gradient(135deg, #ff8585 0%, #ff6060 50%, #f05050 100%);
 }
 
 .error-retry-btn:active {
   transform: translateY(-1px) scale(0.98);
-  box-shadow: 0 2px 10px -3px rgba(255, 82, 82, 0.4),
+  box-shadow:
+    0 2px 10px -3px rgba(255, 82, 82, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
@@ -2825,7 +2868,8 @@ body::before {
   transform: translateX(-50%) translateY(-120%) scale(0.95);
   z-index: 10000;
   opacity: 0;
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+  transition:
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
     opacity 0.3s ease;
   pointer-events: none;
   filter: blur(4px);
@@ -2853,8 +2897,10 @@ body::before {
   padding: 16px 22px;
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   backdrop-filter: blur(24px) saturate(180%);
-  box-shadow: 0 20px 60px -15px rgba(0, 200, 83, 0.3),
-    0 0 0 1px rgba(0, 200, 83, 0.15), 0 1px 2px rgba(0, 0, 0, 0.2),
+  box-shadow:
+    0 20px 60px -15px rgba(0, 200, 83, 0.3),
+    0 0 0 1px rgba(0, 200, 83, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
   position: relative;
   overflow: hidden;

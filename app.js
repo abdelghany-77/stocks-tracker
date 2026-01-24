@@ -353,7 +353,7 @@ async function fetchGoldPrice() {
   // This is more reliable as CoinGecko has good CORS support
   try {
     const response = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd&include_24hr_change=true"
+      "https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd&include_24hr_change=true",
     );
     if (response.ok) {
       const data = await response.json();
@@ -366,7 +366,7 @@ async function fetchGoldPrice() {
         errorState.gold.message = "";
         console.log(
           "Gold price from CoinGecko (XAUT):",
-          globalPrices.goldOunceUSD
+          globalPrices.goldOunceUSD,
         );
         return;
       }
@@ -378,7 +378,7 @@ async function fetchGoldPrice() {
   // API 2: Try PAX Gold (PAXG) - another gold-backed token
   try {
     const response = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd&include_24hr_change=true"
+      "https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd&include_24hr_change=true",
     );
     if (response.ok) {
       const data = await response.json();
@@ -390,7 +390,7 @@ async function fetchGoldPrice() {
         errorState.gold.message = "";
         console.log(
           "Gold price from CoinGecko (PAXG):",
-          globalPrices.goldOunceUSD
+          globalPrices.goldOunceUSD,
         );
         return;
       }
@@ -481,7 +481,7 @@ function updateGoldDisplay() {
   if (elements.goldOunceSell)
     elements.goldOunceSell.textContent = formatCurrency(
       goldOunceSell,
-      currency
+      currency,
     );
   if (elements.goldKgSell)
     elements.goldKgSell.textContent = formatCurrency(goldKgSell, currency);
@@ -499,14 +499,14 @@ function updateGoldDisplay() {
       {
         minimumFractionDigits: 3,
         maximumFractionDigits: 3,
-      }
+      },
     );
   }
   if (elements.chartGoldChange) {
     // Use actual gold change from API
     const goldChange = globalPrices.goldChange24h;
     const changeValue = ((goldOunceUSD * Math.abs(goldChange)) / 100).toFixed(
-      2
+      2,
     );
     elements.chartGoldChange.textContent = `${
       goldChange >= 0 ? "+" : ""
@@ -523,7 +523,7 @@ function updateGoldDisplay() {
     if (
       karatElement &&
       !["gold12k", "gold18k", "gold21k", "gold22k", "gold24k"].includes(
-        `gold${karat}k`
+        `gold${karat}k`,
       )
     ) {
       const karatPrice = goldGram * karatPurity[karat];
@@ -557,19 +557,19 @@ function updateGoldDisplay() {
   if (elements.egyptGoldPoundPrice) {
     elements.egyptGoldPoundPrice.textContent = `ج.م ${egyptGoldPoundEGP.toLocaleString(
       undefined,
-      { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+      { minimumFractionDigits: 0, maximumFractionDigits: 0 },
     )}`;
   }
   if (elements.egyptGoldPoundSell) {
     elements.egyptGoldPoundSell.textContent = `ج.م ${egyptGoldPoundSellEGP.toLocaleString(
       undefined,
-      { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+      { minimumFractionDigits: 0, maximumFractionDigits: 0 },
     )}`;
   }
   if (elements.egyptGoldPoundBuy) {
     elements.egyptGoldPoundBuy.textContent = `ج.م ${egyptGoldPoundBuyEGP.toLocaleString(
       undefined,
-      { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+      { minimumFractionDigits: 0, maximumFractionDigits: 0 },
     )}`;
   }
 
@@ -776,14 +776,20 @@ function calculateGoldValue() {
 }
 
 // Track which charts have been loaded
-const chartsLoaded = { gold: false, silver: false, btc: false, stocks: false };
+const chartsLoaded = {
+  gold: false,
+  usdegp: false,
+  silver: false,
+  btc: false,
+  stocks: false,
+};
 
 // Load a single TradingView chart
 function loadChart(chartType) {
   if (chartsLoaded[chartType]) return;
 
   const placeholder = document.querySelector(
-    `.chart-placeholder[data-chart="${chartType}"]`
+    `.chart-placeholder[data-chart="${chartType}"]`,
   );
 
   if (chartType === "gold") {
@@ -800,11 +806,21 @@ function loadChart(chartType) {
       container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_btc&symbol=BITSTAMP%3ABTCUSD&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" style="width: 100%; height: 100%;"></iframe>`;
       chartsLoaded.btc = true;
     }
+  } else if (chartType === "usdegp") {
+    const container = document.getElementById("tradingview_usdegp");
+    if (container) {
+      const placeholder = document.querySelector(
+        `.chart-placeholder[data-chart="usdegp"]`,
+      );
+      if (placeholder) placeholder.style.display = "none";
+      container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_usdegp&symbol=FX_IDC%3AUSDEGP&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" style="width: 100%; height: 100%;"></iframe>`;
+      chartsLoaded.usdegp = true;
+    }
   } else if (chartType === "silver") {
     const container = document.getElementById("tradingview_silver");
     if (container) {
       const placeholder = document.querySelector(
-        `.chart-placeholder[data-chart="silver"]`
+        `.chart-placeholder[data-chart="silver"]`,
       );
       if (placeholder) placeholder.style.display = "none";
       container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_silver&symbol=TVC%3ASILVER&interval=D&hidesidetoolbar=0&symboledit=0&saveimage=0&toolbarbg=f1f3f6&details=1&hotlist=0&calendar=0&studies=&theme=dark&style=3&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=symbol-overview&hidevolume=0" style="width: 100%; height: 100%;"></iframe>`;
@@ -833,6 +849,7 @@ function initLazyCharts() {
           if (entry.isIntersecting) {
             // Load all charts when section becomes visible
             loadChart("gold");
+            loadChart("usdegp");
             loadChart("silver");
             loadChart("btc");
             loadChart("stocks");
@@ -840,7 +857,7 @@ function initLazyCharts() {
           }
         });
       },
-      { rootMargin: "100px" }
+      { rootMargin: "100px" },
     );
 
     observer.observe(chartsSection);
@@ -919,7 +936,7 @@ if (elements.calcWeight) {
   // Debounce for manual typing, instant for buttons
   elements.calcWeight.addEventListener(
     "input",
-    debounce(calculateGoldValue, 300)
+    debounce(calculateGoldValue, 300),
   );
 }
 if (elements.calcUnit) {
