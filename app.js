@@ -5,6 +5,14 @@ const BTC_API =
   "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,eur,gbp,egp,sar,aed&include_24hr_change=true&include_market_cap=true";
 const EXCHANGE_RATES_API = "https://api.frankfurter.app/latest?from=USD";
 
+const DEFAULT_CURRENCY = "EGP";
+const CURRENCY_STORAGE_KEY = "stocksTrackerCurrency";
+const marketLabels = {
+  gold: "الذهب",
+  btc: "بيتكوين",
+  exchange: "سعر الصرف",
+};
+
 // Currency symbols
 const currencySymbols = {
   USD: "$",
@@ -14,6 +22,17 @@ const currencySymbols = {
   SAR: "ر.س",
   AED: "د.إ",
 };
+
+let selectedCurrency = DEFAULT_CURRENCY;
+
+try {
+  const storedCurrency = localStorage.getItem(CURRENCY_STORAGE_KEY);
+  if (storedCurrency && currencySymbols[storedCurrency]) {
+    selectedCurrency = storedCurrency;
+  }
+} catch (error) {
+  console.warn("Unable to read saved currency preference:", error);
+}
 
 // Karat percentages
 const karatPurity = {
@@ -52,6 +71,7 @@ let errorToastTimeout = null;
 const elements = {
   updateTime: document.getElementById("updateTime"),
   refreshBtn: document.getElementById("refreshBtn"),
+  currencySelect: document.getElementById("currencySelect"),
   // Gold table elements
   goldGramSell: document.getElementById("goldGramSell"),
   goldOunceSell: document.getElementById("goldOunceSell"),
@@ -207,7 +227,7 @@ function dismissErrorToast() {
 let successToastTimeout = null;
 
 // Show success toast notification
-function showSuccessToast(message = "Live data refreshed successfully") {
+function showSuccessToast(message = "تم تحديث البيانات بنجاح") {
   if (elements.successToast) {
     if (elements.successSubtitle) {
       elements.successSubtitle.textContent = message;
@@ -243,17 +263,17 @@ function checkAndShowErrors() {
   const errors = [];
 
   if (errorState.gold.hasError) {
-    errors.push("Gold prices");
+    errors.push(marketLabels.gold);
   }
   if (errorState.btc.hasError) {
-    errors.push("Bitcoin data");
+    errors.push(marketLabels.btc);
   }
   if (errorState.exchange.hasError) {
-    errors.push("Exchange rates");
+    errors.push(marketLabels.exchange);
   }
 
   if (errors.length > 0) {
-    const message = `Unable to fetch: ${errors.join(", ")}. Using cached data.`;
+    const message = `تعذر تحديث: ${errors.join("، ")}. يتم استخدام بيانات مخزنة مؤقتًا.`;
     showErrorToast(message);
     errorState.lastErrorTime = Date.now();
 
@@ -270,11 +290,11 @@ function checkAndShowErrors() {
 
     // Show success toast if this was a manual refresh or recovering from errors
     if (errorState.lastErrorTime) {
-      showSuccessToast("Connection restored - live data updated");
+      showSuccessToast("تمت استعادة الاتصال وتحديث البيانات المباشرة");
       errorState.lastErrorTime = null;
     } else {
       // Show a subtle success for regular refreshes
-      showSuccessToast();
+      showSuccessToast("تم تحديث البيانات بنجاح");
     }
   }
 }
@@ -292,7 +312,7 @@ function resetErrorStates() {
 // Update time display
 function updateTimeDisplay() {
   const now = new Date();
-  elements.updateTime.textContent = now.toLocaleString("en-US", {
+  elements.updateTime.textContent = now.toLocaleString("ar-EG", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -458,7 +478,7 @@ function convertCurrency(amountUSD, toCurrency) {
 
 // Update gold display
 function updateGoldDisplay() {
-  const currency = "EGP"; // Hardcoded to Egyptian Pound
+  const currency = selectedCurrency;
   const goldOunceUSD = globalPrices.goldOunceUSD;
 
   // Convert to selected currency
@@ -584,13 +604,13 @@ function updateGoldDisplay() {
     }
     if (text) {
       if (source === "live") {
-        text.textContent = "Live data";
+        text.textContent = "بيانات مباشرة";
         text.className = "source-text live";
       } else if (source === "fallback") {
-        text.textContent = "Cached price (APIs unavailable)";
+        text.textContent = "سعر مخزن مؤقتًا (تعذر الوصول للمصادر)";
         text.className = "source-text fallback";
       } else {
-        text.textContent = "Loading...";
+        text.textContent = "جارٍ التحميل...";
         text.className = "source-text";
       }
     }
@@ -695,7 +715,7 @@ function updateGoldInfoSection() {
 
 // Update BTC display
 function updateBTCDisplay() {
-  const currency = "EGP"; // Hardcoded to Egyptian Pound
+  const currency = selectedCurrency;
   const btcUSD = globalPrices.btcUSD;
 
   // Convert to selected currency
@@ -753,7 +773,7 @@ function calculateGoldValue() {
     return;
   }
 
-  const currency = "EGP"; // Hardcoded to Egyptian Pound
+  const currency = selectedCurrency;
   const weight = parseFloat(elements.calcWeight.value) || 0;
   const unit = elements.calcUnit.value;
   const karat = parseInt(elements.calcKarat.value);
@@ -782,6 +802,7 @@ const chartsLoaded = {
   silver: false,
   btc: false,
   stocks: false,
+  egyptStocks: false,
 };
 
 // Load a single TradingView chart
@@ -833,6 +854,13 @@ function loadChart(chartType) {
       container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/embed-widget/symbol-overview/?locale=en#%7B%22symbols%22%3A%5B%5B%22Apple%22%2C%22AAPL%7C1D%22%5D%2C%5B%22Microsoft%22%2C%22MSFT%7C1D%22%5D%2C%5B%22NVIDIA%22%2C%22NVDA%7C1D%22%5D%2C%5B%22Tesla%22%2C%22TSLA%7C1D%22%5D%2C%5B%22Amazon%22%2C%22AMZN%7C1D%22%5D%2C%5B%22Google%22%2C%22GOOGL%7C1D%22%5D%2C%5B%22Meta%22%2C%22META%7C1D%22%5D%2C%5B%22Netflix%22%2C%22NFLX%7C1D%22%5D%2C%5B%22AMD%22%2C%22AMD%7C1D%22%5D%2C%5B%22Intel%22%2C%22INTC%7C1D%22%5D%2C%5B%22Berkshire%22%2C%22BRK.B%7C1D%22%5D%2C%5B%22JPMorgan%22%2C%22JPM%7C1D%22%5D%2C%5B%22Visa%22%2C%22V%7C1D%22%5D%2C%5B%22Walmart%22%2C%22WMT%7C1D%22%5D%2C%5B%22Disney%22%2C%22DIS%7C1D%22%5D%2C%5B%22Coca-Cola%22%2C%22KO%7C1D%22%5D%2C%5B%22Nike%22%2C%22NKE%7C1D%22%5D%2C%5B%22Pfizer%22%2C%22PFE%7C1D%22%5D%2C%5B%22Boeing%22%2C%22BA%7C1D%22%5D%2C%5B%22McDonald's%22%2C%22MCD%7C1D%22%5D%5D%2C%22chartOnly%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22colorTheme%22%3A%22dark%22%2C%22showVolume%22%3Afalse%2C%22showMA%22%3Afalse%2C%22hideDateRanges%22%3Afalse%2C%22hideMarketStatus%22%3Afalse%2C%22hideSymbolLogo%22%3Afalse%2C%22scalePosition%22%3A%22right%22%2C%22scaleMode%22%3A%22Normal%22%2C%22fontFamily%22%3A%22-apple-system%2C%20BlinkMacSystemFont%2C%20Trebuchet%20MS%2C%20Roboto%2C%20Ubuntu%2C%20sans-serif%22%2C%22fontSize%22%3A%2210%22%2C%22noTimeScale%22%3Afalse%2C%22valuesTracking%22%3A%221%22%2C%22changeMode%22%3A%22price-and-percent%22%2C%22chartType%22%3A%22area%22%2C%22lineWidth%22%3A2%2C%22lineType%22%3A0%2C%22dateRanges%22%3A%5B%221d%7C1%22%2C%221m%7C30%22%2C%223m%7C60%22%2C%2212m%7C1D%22%2C%2260m%7C1W%22%2C%22all%7C1M%22%5D%7D" style="width: 100%; height: 100%;"></iframe>`;
       chartsLoaded.stocks = true;
     }
+  } else if (chartType === "egyptStocks") {
+    const container = document.getElementById("tradingview_egypt_stocks");
+    if (container) {
+      if (placeholder) placeholder.style.display = "none";
+      container.innerHTML = `<iframe scrolling="no" allowtransparency="true" frameborder="0" loading="lazy" src="https://www.tradingview.com/embed-widget/symbol-overview/?locale=en#%7B%22symbols%22%3A%5B%5B%22CIB%22%2C%22EGX%3ACOMI%7C1D%22%5D%2C%5B%22Fawry%22%2C%22EGX%3AFWRY%7C1D%22%5D%2C%5B%22El%20Sewedy%20Electric%22%2C%22EGX%3ASWDY%7C1D%22%5D%2C%5B%22Telecom%20Egypt%22%2C%22EGX%3AETEL%7C1D%22%5D%2C%5B%22EFG%20Holding%22%2C%22EGX%3AHRHO%7C1D%22%5D%2C%5B%22Talaat%20Moustafa%22%2C%22EGX%3ATMGH%7C1D%22%5D%2C%5B%22Emaar%20Misr%22%2C%22EGX%3AEMFD%7C1D%22%5D%2C%5B%22Orascom%20Construction%22%2C%22EGX%3AORAS%7C1D%22%5D%2C%5B%22Orascom%20Development%22%2C%22EGX%3AORHD%7C1D%22%5D%2C%5B%22Palm%20Hills%22%2C%22EGX%3APHDC%7C1D%22%5D%2C%5B%22Ezz%20Steel%22%2C%22EGX%3AESRS%7C1D%22%5D%2C%5B%22Abu%20Qir%20Fertilizers%22%2C%22EGX%3AABUK%7C1D%22%5D%2C%5B%22Juhayna%22%2C%22EGX%3AJUFO%7C1D%22%5D%2C%5B%22Sidi%20Kerir%22%2C%22EGX%3ASKPC%7C1D%22%5D%2C%5B%22Raya%22%2C%22EGX%3ARAYA%7C1D%22%5D%2C%5B%22eFinance%22%2C%22EGX%3AEFIH%7C1D%22%5D%5D%2C%22chartOnly%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22colorTheme%22%3A%22dark%22%2C%22showVolume%22%3Afalse%2C%22showMA%22%3Afalse%2C%22hideDateRanges%22%3Afalse%2C%22hideMarketStatus%22%3Afalse%2C%22hideSymbolLogo%22%3Afalse%2C%22scalePosition%22%3A%22right%22%2C%22scaleMode%22%3A%22Normal%22%2C%22fontFamily%22%3A%22-apple-system%2C%20BlinkMacSystemFont%2C%20Trebuchet%20MS%2C%20Roboto%2C%20Ubuntu%2C%20sans-serif%22%2C%22fontSize%22%3A%2210%22%2C%22noTimeScale%22%3Afalse%2C%22valuesTracking%22%3A%221%22%2C%22changeMode%22%3A%22price-and-percent%22%2C%22chartType%22%3A%22area%22%2C%22lineWidth%22%3A2%2C%22lineType%22%3A0%2C%22dateRanges%22%3A%5B%221d%7C1%22%2C%221m%7C30%22%2C%223m%7C60%22%2C%2212m%7C1D%22%2C%2260m%7C1W%22%2C%22all%7C1M%22%5D%7D" style="width: 100%; height: 100%;"></iframe>`;
+      chartsLoaded.egyptStocks = true;
+    }
   }
 }
 
@@ -853,6 +881,7 @@ function initLazyCharts() {
             loadChart("silver");
             loadChart("btc");
             loadChart("stocks");
+            loadChart("egyptStocks");
             observer.disconnect();
           }
         });
@@ -867,6 +896,7 @@ function initLazyCharts() {
       loadChart("gold");
       loadChart("btc");
       loadChart("stocks");
+      loadChart("egyptStocks");
     }, 2000);
   }
 }
@@ -930,6 +960,28 @@ async function loadAllData() {
 // Event Listeners
 if (elements.refreshBtn) {
   elements.refreshBtn.addEventListener("click", loadAllData);
+}
+
+if (elements.currencySelect) {
+  elements.currencySelect.value = selectedCurrency;
+  elements.currencySelect.addEventListener("change", (event) => {
+    const nextCurrency = event.target.value;
+    if (!currencySymbols[nextCurrency]) {
+      return;
+    }
+
+    selectedCurrency = nextCurrency;
+
+    try {
+      localStorage.setItem(CURRENCY_STORAGE_KEY, nextCurrency);
+    } catch (error) {
+      console.warn("Unable to save currency preference:", error);
+    }
+
+    updateGoldDisplay();
+    updateBTCDisplay();
+    calculateGoldValue();
+  });
 }
 
 if (elements.calcWeight) {
@@ -1027,5 +1079,5 @@ window.addEventListener("online", () => {
 });
 
 window.addEventListener("offline", () => {
-  showErrorToast("You are offline. Prices may be outdated.", false);
+  showErrorToast("أنت غير متصل بالإنترنت. قد تكون الأسعار غير محدثة.", false);
 });
