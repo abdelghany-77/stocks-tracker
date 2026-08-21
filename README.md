@@ -1,28 +1,87 @@
-# Market Pulse Tracker
+# Stock Pulse | أسواق اليوم 🇪🇬 🌐
 
-A responsive, Arabic-first market dashboard for tracking gold, Bitcoin, USD/EGP, silver, and popular stocks in real-time. Built with pure HTML, CSS, and JavaScript with no backend required.
+A high-performance, real-time Arabic-first **Financial Market Watch Dashboard** for Egypt and Global Markets. Powered **100% by official TradingView Dark Theme Widgets** with zero local mock data, zero API rate-limits, and ultra-reliable real-time data streaming.
 
-## 🌟 Features
+🔗 **Live Demo:** [https://abdelghany-77.github.io/stocks-tracker/](https://abdelghany-77.github.io/stocks-tracker/)
 
-- **Market Overview**: A shared snapshot for gold, Bitcoin, USD/EGP, silver, and stocks in one interface
-- **Currency Selector**: Switch display values across EGP, USD, EUR, GBP, SAR, and AED
-- **Bitcoin Tracking**: Live BTC price with 24h change and market cap
-- **Gold Value Calculator**: Estimate gold value by weight and karat
-- **Live Charts**: Interactive TradingView charts for gold, BTC, USD/EGP, silver, and US/Egyptian stocks
-- **Data Trust Signals**: Clear live, cached, and estimated labels in the UI
-- **Responsive Design**: Works well on desktop, tablet, and mobile
-- **Dark Theme**: Modern dashboard styling with balanced market accents
-- **Auto-refresh**: Prices update automatically every 5 minutes
+---
 
-## 🚀 Live Demo
+## 🌟 Official TradingView Widgets Integrated
 
-Deploy to GitHub Pages and your app will be live at:
-`https://abdelghany-77.github.io/stocks-tracker/`
+### 1. ⚡ Top Real-Time Ticker Tape (`TradingViewTickerTape.tsx`)
+- Continuous marquee stream showing live quotes for:
+  * **الذهب:** `FX_IDC:XAUUSD`
+  * **الدولار / جنيه:** `FX_IDC:USDEGP`
+  * **البورصة المصرية:** `EGX:EGX30`
+  * **المؤشرات الأمريكية:** `NASDAQ:NDX`, `FOREXCOM:SPXUSD`
+  * **السلع والعملات الرقمية:** `TVC:UKOIL`, `BINANCE:BTCUSDT`, `FX_IDC:EUREGP`, `FX_IDC:SAREGP`
 
-## API Information
+### 2. 📊 Hero Real-Time Highlights (`TradingViewMiniWidget.tsx`)
+- 4 dedicated mini-chart highlight widgets for key leading indicators:
+  * 🪙 **أونصة الذهب (Gold Spot XAU/USD)**
+  * 🏛️ **مؤشر البورصة المصرية EGX 30**
+  * 💵 **الدولار مقابل الجنيه (USD/EGP)**
+  * 🌐 **ناسداك 100 (Nasdaq 100)**
 
-This app uses free public APIs:
+### 3. 📈 Advanced Interactive Real-Time Chart (`TradingViewAdvancedChart.tsx`)
+- Official TradingView Advanced Chart with an explicit **560px** fixed height.
+- Instant asset switcher tabs:
+  * `FX_IDC:XAUUSD` (أونصة الذهب)
+  * `EGX:EGX30` (مؤشر EGX 30)
+  * `FX_IDC:USDEGP` (الدولار مقابل الجنيه)
+  * `NASDAQ:NDX` (ناسداك 100)
+  * `FOREXCOM:SPXUSD` (S&P 500)
+  * `TVC:UKOIL` (خام برنت)
+  * `BINANCE:BTCUSDT` (بيتكوين)
+  * `EGX:COMI` (البنك التجاري الدولي)
+  * `EGX:TMGH` (طلعت مصطفى)
+  * `EGX:FWRY` (فوري)
+- Full technical analysis tools, indicators, drawing tools, and Arabic locale (`locale: "ar_AE"`).
 
-- **CoinGecko**: Free API for Bitcoin prices (no API key required)
-- **Frankfurter**: Free API for currency exchange rates
-- **TradingView**: Free widgets for live charts
+### 4. 🗂️ Multi-Market Overview Widget (`TradingViewMarketOverview.tsx`)
+- Tabbed multi-asset market overview:
+  * **🪙 الذهب والعملات (Forex & Gold)**
+  * **🏛️ البورصة المصرية (EGX Stocks)**
+  * **🌐 الأسواق العالمية والسلع (Global Markets)**
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology |
+|---|---|
+| **Framework** | React 18 |
+| **Language** | TypeScript |
+| **Bundler** | Vite 5 |
+| **Styling** | Tailwind CSS v3 (Dark Theme `#0B0F17`) |
+| **Market Data & Charts** | Official TradingView Embed Widgets |
+| **Icons** | Lucide React |
+| **Deployment** | GitHub Pages (`gh-pages`) |
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/abdelghany-77/stocks-tracker.git
+cd stocks-tracker
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Deploy to GitHub Pages
+npm run deploy
+```
+
+---
+
+## 📄 License
+
+Open source under the MIT License.
