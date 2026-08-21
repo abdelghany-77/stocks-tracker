@@ -170,9 +170,6 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                صُممت بـ <Heart size={13} className="text-rose-500 fill-rose-500 inline" /> للمستثمر المصري والعربي
-              </span>
               <a
                 href="https://github.com/abdelghany-77/stocks-tracker"
                 target="_blank"
