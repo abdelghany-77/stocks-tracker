@@ -1,7 +1,6 @@
 /* ============================================================
  * TradingViewMarketOverview.tsx
- * Official TradingView Market Overview Widget (Strict Dark Mode)
- * Tabbed live price overview for Gold & Forex, EGX, and Global Markets.
+ * Official TradingView Market Overview Widget
  * ============================================================ */
 
 import { useEffect, useRef, memo } from 'react';
@@ -20,14 +19,7 @@ function TradingViewMarketOverviewComponent({
     const container = containerRef.current;
     if (!container) return;
 
-    container.innerHTML = '';
-
-    const widgetDiv = document.createElement('div');
-    widgetDiv.className = 'tradingview-widget-container__widget';
-    widgetDiv.style.height = `${height}px`;
-    widgetDiv.style.minHeight = `${height}px`;
-    widgetDiv.style.width = '100%';
-    container.appendChild(widgetDiv);
+    container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js';
@@ -97,7 +89,7 @@ function TradingViewMarketOverviewComponent({
 
     return () => {
       if (container) {
-        container.innerHTML = '';
+        container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
       }
     };
   }, [height]);
@@ -127,7 +119,9 @@ function TradingViewMarketOverviewComponent({
           ref={containerRef}
           className="tradingview-widget-container w-full"
           style={{ height: `${height}px`, minHeight: `${height}px` }}
-        />
+        >
+          <div className="tradingview-widget-container__widget"></div>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 /* ============================================================
  * TradingViewAdvancedChart.tsx
  * Official TradingView Advanced Real-Time Chart Widget
- * Enforces strict dark mode, explicit fixed 540px height, and unrestricted symbols.
  * ============================================================ */
 
 import { useState, useEffect, useRef, memo } from 'react';
@@ -28,19 +27,34 @@ export const DEFAULT_CHART_ASSETS: ChartAssetOption[] = [
 
 interface TradingViewAdvancedChartProps {
   initialSymbol?: string;
+  symbol?: string;
   height?: number;
+  title?: string;
 }
 
 function TradingViewAdvancedChartComponent({
-  initialSymbol = 'OANDA:XAUUSD',
+  initialSymbol,
+  symbol,
   height = 540,
 }: TradingViewAdvancedChartProps) {
+  const activeSymbol = symbol || initialSymbol || 'OANDA:XAUUSD';
+
   const [selectedAsset, setSelectedAsset] = useState<ChartAssetOption>(() => {
     return (
-      DEFAULT_CHART_ASSETS.find((a) => a.symbol === initialSymbol) ||
-      DEFAULT_CHART_ASSETS[0]
+      DEFAULT_CHART_ASSETS.find((a) => a.symbol === activeSymbol) || {
+        symbol: activeSymbol,
+        nameAr: activeSymbol,
+        category: 'custom',
+      }
     );
   });
+
+  useEffect(() => {
+    if (activeSymbol) {
+      const match = DEFAULT_CHART_ASSETS.find((a) => a.symbol === activeSymbol);
+      setSelectedAsset(match || { symbol: activeSymbol, nameAr: activeSymbol, category: 'custom' });
+    }
+  }, [activeSymbol]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -48,15 +62,7 @@ function TradingViewAdvancedChartComponent({
     const container = containerRef.current;
     if (!container) return;
 
-    // Clean container completely to prevent duplicate iframes
-    container.innerHTML = '';
-
-    const widgetDiv = document.createElement('div');
-    widgetDiv.className = 'tradingview-widget-container__widget';
-    widgetDiv.style.height = `${height}px`;
-    widgetDiv.style.minHeight = `${height}px`;
-    widgetDiv.style.width = '100%';
-    container.appendChild(widgetDiv);
+    container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
@@ -86,7 +92,7 @@ function TradingViewAdvancedChartComponent({
 
     return () => {
       if (container) {
-        container.innerHTML = '';
+        container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
       }
     };
   }, [selectedAsset.symbol, height]);
@@ -145,10 +151,13 @@ function TradingViewAdvancedChartComponent({
           ref={containerRef}
           className="tradingview-widget-container w-full"
           style={{ height: `${height}px`, minHeight: `${height}px` }}
-        />
+        >
+          <div className="tradingview-widget-container__widget"></div>
+        </div>
       </div>
     </div>
   );
 }
 
 export const TradingViewAdvancedChart = memo(TradingViewAdvancedChartComponent);
+export const TradingViewChart = TradingViewAdvancedChart;

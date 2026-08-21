@@ -1,6 +1,6 @@
 /* ============================================================
  * TradingViewTickerTape.tsx
- * Official TradingView Ticker Tape Widget (Strict Dark Mode & Unrestricted Symbols)
+ * Official TradingView Ticker Tape Widget (Strict Dark Mode & Resilient Lifecycle)
  * ============================================================ */
 
 import { useEffect, useRef, memo } from 'react';
@@ -12,11 +12,8 @@ function TradingViewTickerTapeComponent() {
     const container = containerRef.current;
     if (!container) return;
 
-    container.innerHTML = '';
-
-    const widgetDiv = document.createElement('div');
-    widgetDiv.className = 'tradingview-widget-container__widget';
-    container.appendChild(widgetDiv);
+    // Clear previous children
+    container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
@@ -25,14 +22,14 @@ function TradingViewTickerTapeComponent() {
     script.innerHTML = JSON.stringify({
       symbols: [
         { proName: 'OANDA:XAUUSD', title: 'الذهب (XAU/USD)' },
-        { proName: 'FX_IDC:USDEGP', title: 'الدولار / جنيه مصري' },
+        { proName: 'FX_IDC:USDEGP', title: 'الدولار / جنيه' },
         { proName: 'EGX:EGX30', title: 'مؤشر EGX 30' },
         { proName: 'NASDAQ:QQQ', title: 'ناسداك (QQQ)' },
         { proName: 'AMEX:SPY', title: 'S&P 500 (SPY)' },
-        { proName: 'TVC:UKOIL', title: 'نفط خام برنت' },
+        { proName: 'TVC:UKOIL', title: 'نفط برنت' },
         { proName: 'BINANCE:BTCUSDT', title: 'بيتكوين BTC' },
-        { proName: 'FX_IDC:EUREGP', title: 'اليورو / جنيه مصري' },
-        { proName: 'FX_IDC:SAREGP', title: 'الريال السعودي / جنيه مصري' },
+        { proName: 'FX_IDC:EUREGP', title: 'اليورو / جنيه' },
+        { proName: 'FX_IDC:SAREGP', title: 'الريال السعودي' },
       ],
       showSymbolLogo: true,
       isTransparent: true,
@@ -45,14 +42,16 @@ function TradingViewTickerTapeComponent() {
 
     return () => {
       if (container) {
-        container.innerHTML = '';
+        container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
       }
     };
   }, []);
 
   return (
-    <div className="w-full bg-[#080C14] border-b border-slate-800/80 sticky top-0 z-50 backdrop-blur-xl">
-      <div ref={containerRef} className="tradingview-widget-container" />
+    <div className="w-full bg-[#080C14] border-b border-slate-800/80 sticky top-0 z-50 backdrop-blur-xl min-h-[46px]">
+      <div ref={containerRef} className="tradingview-widget-container">
+        <div className="tradingview-widget-container__widget"></div>
+      </div>
     </div>
   );
 }

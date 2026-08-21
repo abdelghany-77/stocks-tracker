@@ -1,7 +1,6 @@
 /* ============================================================
  * TradingViewMiniWidget.tsx
- * Official TradingView Mini Chart / Ticker Widget for Hero Cards
- * Enforces strict dark mode (#0B0F17) with zero white artifacts.
+ * Official TradingView Mini Chart Widget for Hero Highlights
  * ============================================================ */
 
 import { useEffect, useRef, memo } from 'react';
@@ -23,13 +22,7 @@ function TradingViewMiniWidgetComponent({
     const container = containerRef.current;
     if (!container) return;
 
-    container.innerHTML = '';
-
-    const widgetDiv = document.createElement('div');
-    widgetDiv.className = 'tradingview-widget-container__widget';
-    widgetDiv.style.height = `${height}px`;
-    widgetDiv.style.width = '100%';
-    container.appendChild(widgetDiv);
+    container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js';
@@ -53,15 +46,15 @@ function TradingViewMiniWidgetComponent({
 
     return () => {
       if (container) {
-        container.innerHTML = '';
+        container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
       }
     };
   }, [symbol, height]);
 
   return (
     <div
-      className="rounded-3xl bg-slate-900/90 border border-slate-800 p-5 shadow-2xl backdrop-blur-xl flex flex-col justify-between overflow-hidden hover:border-slate-700 transition-all bg-[#0B0F17]"
-      style={{ minHeight: `${height + 30}px` }}
+      className="rounded-3xl bg-[#0B0F17] border border-slate-800 p-4 shadow-2xl backdrop-blur-xl flex flex-col justify-between overflow-hidden hover:border-slate-700 transition-all"
+      style={{ minHeight: `${height + 36}px` }}
     >
       {title && (
         <div className="flex items-center justify-between mb-2">
@@ -73,9 +66,11 @@ function TradingViewMiniWidgetComponent({
       )}
       <div
         ref={containerRef}
-        className="tradingview-widget-container w-full bg-[#0B0F17]"
+        className="tradingview-widget-container w-full"
         style={{ height: `${height}px`, minHeight: `${height}px` }}
-      />
+      >
+        <div className="tradingview-widget-container__widget"></div>
+      </div>
     </div>
   );
 }
